@@ -2,7 +2,8 @@
 My school projects at University Paris 7
 
 ## Links : 
- * ![Blokus](https://github.com/elusyo/School_projects/tree/master/Blokus)
- * ![Draw Me](https://github.com/elusyo/School_projects/tree/master/Draw-me)
- * ![Piotr]()
- * ![Julia]()
+ * ![Blokus <JAVA>](https://github.com/elusyo/School_projects/tree/master/Blokus)
+ * ![Draw Me <JAVA>](https://github.com/elusyo/School_projects/tree/master/Draw-me)
+ * ![Piotr <OCaml>]()
+ * ![Julia <JAVA>]()
+ * ![Mpsh <C>]()
