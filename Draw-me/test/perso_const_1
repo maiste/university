@@ -1,0 +1,13 @@
+/* Test de
+commentaire sur plusieurs lignes */
+
+Var x = 100;
+Var y = True;
+If y Then
+  x = 400 ;
+
+While (x >= 0) Do
+Begin // Commentaire de ligne
+x = (x-20);
+DrawCircle(200,200,x,#FF0000);
+End;

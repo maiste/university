@@ -1,0 +1,12 @@
+Var pos_x = 50;
+pos_x = (pos_x * 4);
+Begin
+  Var pos_y = 100;
+  pos_y = ((pos_x * 2) - pos_y);
+  FillRect(190, 290, 220, 120, #FF0000);
+  FillRect(pos_x, pos_y, 200, 100, #0000FF);
+  pos_x = (pos_x / 4);
+End;
+Var pos_y = pos_x;
+FillRect((pos_x - 10), 40, 70, 70, #FF0000);
+FillRect(pos_x, pos_y, 50, 50, #0000FF);

@@ -1,0 +1,10 @@
+Proc rond(coinX, coinY, rayon)
+	Begin
+	DrawCircle(coinX, coinY, rayon, #FF0000);
+	If (rayon <= 300) Then 
+		Begin
+		rond(coinX, coinY, (rayon + 10));
+		End;
+	End;
+
+rond(400,300,0);

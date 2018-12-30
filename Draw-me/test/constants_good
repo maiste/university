@@ -1,0 +1,11 @@
+Const pos_x = 50;
+Const pos_xx = (pos_x * 4);
+Begin
+  Const pos_y = 100;
+  Const pos_yy = ((pos_xx * 2) - pos_y);
+  FillRect(190, 290, 220, 120, #FF0000);
+  FillRect(pos_xx, pos_yy, 200, 100, #0000FF);
+End;
+Const pos_y = pos_x;
+FillRect((pos_x - 10), 40, 70, 70, #FF0000);
+FillRect(pos_x, pos_y, 50, 50, #0000FF);

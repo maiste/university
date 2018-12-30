@@ -1,0 +1,26 @@
+Const x = 50;
+
+If (x * 2) Then
+  FillRect(40, 40, 70, 70, #FF0000)
+Else
+  FillRect(180, 200, 43, 42, #FFFF00);
+
+If (x - x) Then
+  If (x * 4) Then
+    FillRect(280, 100, 50, 120, #FFFF00)
+  Else Begin
+    If (x * 0) Then
+      FillRect(80, 20, 50, 20, #FFFF00)
+    Else
+      FillCircle(80, 20, 50, #00FF00);
+    DrawRect(110, 40, 30, 55, #FF00FF);
+  End
+Else Begin
+  FillRect(400, 300, 70, 70, #FF0000);
+  If (x * 0) Then Begin
+    FillCircle(40, 40, 120, #FFFF00);
+  End Else Begin
+    FillRect(410, 310, 50, 50, #0000FF);
+    FillRect(x, x, x, x, #0000FF);
+  End;
+End;

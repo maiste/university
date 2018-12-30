@@ -1,0 +1,9 @@
+Var pos_x = 50;
+Begin
+  Var pos_x = 100;
+  pos_x = (pos_x * 2);
+  FillRect(190,190,120,120,#FF0000);
+  FillRect(pos_x,200,100,100,#0000FF);
+End;
+FillRect(40,40,70,70,#FF0000);
+FillRect(pos_x,50,50,50,#0000FF);

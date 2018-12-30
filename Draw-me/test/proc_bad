@@ -1,0 +1,13 @@
+Proc carre(coinX, coinY, largeur, hauteur)
+	FillRect(coinX,coinY,largeur,hauteur, #00FF00);
+	
+Begin
+	If (((coinX >= 10) && (coinY >= 10)) && ((largeur > 0) && (hauteur > 0))) Then
+		Begin
+			FillRect((coinX-10),(coinY-10),(largeur+20),(hauteur+20),#FF0000);
+			FillRect(coinX,coinY,largeur,hauteur, #0000FF);
+		End;
+End;
+
+carre(50,50,100,200);
+carre(160,123,60,40);

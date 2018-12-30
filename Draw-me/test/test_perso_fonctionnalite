@@ -1,0 +1,98 @@
+/* Voici un fichier testant toutes les fonctionnalités de notre programme */
+
+// opérateurs : + - * /
+FillRect(250,250,100,75,#FF0000);
+Begin
+  DrawCircle(60,80,50,#00FF00);
+  FillCircle((120+10),(600/2),(50*3),#0000FF);
+  DrawCircle((900-(400+50)),(25+((25+25)+25)),((800-400)/4),#FFFF00);
+End;
+DrawRect(50,50,50,50,#FF00FF);
+
+// définition de type et portée des variables
+Var xx = True;
+Var y = False;
+Var z = 2;
+If xx Then 
+	Begin
+		FillCircle((120+10),(600/2),(50*3),#0000FF);
+		Var y = 2;
+		DrawCircle((900-(400+50)),(25+((25+25)+25)),(y+z),#FFFF00);
+	End
+Else
+	xx = y;
+
+// comparateur boolean : || && > < >= <= == !=
+If ( ((20 >= 10) && (50 > 10)) || ((1 < 2) && (1 <= 1)) ) Then
+	Begin
+		FillRect((20-10),(50-10),(50+20),(20+20),#FF0000);
+	End
+Else 
+	Begin
+		If ((True != False) == True) Then
+			FillRect(20,20,20,20, #0000FF)
+		Else 
+			FillRect(50,50,50,50, #00FFFF);
+	End;
+
+// constante et variable
+Const pos_x = 50;
+Var pos_xx = (pos_x * 4);
+Begin
+  Const pos_y = 100;
+  Var pos_yy = ((pos_xx * 2) - pos_y);
+  FillRect(190, 290, 220, 120, #FF0000);
+  FillRect(pos_xx, pos_yy, 200, 100, #0000FF);
+End;
+pos_xx = pos_x;
+FillRect((pos_x - 10), 40, 70, 70, #FF0000);
+FillRect(pos_x, pos_xx, 50, 50, #0000FF);
+
+// conditionnel avec dangling else 
+Const x = 50;
+
+If (x * 2) Then
+  FillRect(40, 40, 70, 70, #FF0000);
+
+If (x - x) Then
+	Begin
+  		If (x * 4) Then
+  		  	FillRect(280, 100, 50, 120, #FFFF00)
+  		Else If (x * 0) Then
+  		    FillRect(80, 20, 50, 20, #FFFF00)
+  		Else
+  		  	FillCircle(80, 20, 50, #00FF00);
+  		DrawRect(110, 40, 30, 55, #FF00FF);
+  	End
+Else 
+	Begin
+	  	FillRect(400, 300, 70, 70, #FF0000);
+	  	If (x * 0) Then 
+	  		Begin
+	  		  	FillCircle(40, 40, 120, #FFFF00);
+	  		End
+	  	Else 
+	  		Begin
+	  		  	FillRect(410, 310, 50, 50, #0000FF);
+	  		  	FillRect(x, x, x, x, #0000FF);
+			End;
+	End;
+
+// while
+Var xxx = 100;
+While (xxx >= 0) Do
+	Begin
+		xxx = (xxx-20);
+		DrawCircle(200,200,xxx,#FF0000);
+	End;
+
+// prcédure et appel récursif
+Proc rond(coinX, coinY, rayon)
+	Begin
+		DrawCircle(coinX, coinY, rayon, #FF0000);
+		If (rayon <= 300) Then 
+			Begin
+				rond(coinX, coinY, (rayon + 10));
+			End;
+	End;
+rond(400,300,0);
