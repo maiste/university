@@ -1,0 +1,23 @@
+#!/bin/sh
+echo "Rentrez votre mdp pour psql -U postgres : "
+read PASSWORD
+
+export PGPASSWORD=$PASSWORD
+
+echo "Création de l'utilisateur blokus"
+psql -U postgres -c "CREATE USER blokus WITH PASSWORD 'blokus1';"
+
+echo "Création de la base de données"
+psql -U postgres -c "CREATE DATABASE blokus;" 
+
+echo "Give privileges to user blokus"
+psql -U postgres -c "grant all privileges on database blokus to blokus;"
+psql -U postgres -c "alter database blokus owner to blokus;"
+
+export PGPASSWORD="blokus1"
+
+echo "Create database"
+psql -f script/blokus.sql -U blokus
+
+unset PGPASSWORD
+

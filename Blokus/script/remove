@@ -1,0 +1,9 @@
+#!/bin/sh
+
+echo "Rentrez le mdp psql -U postgres :"
+read PASSWORD
+
+export PGPASSWORD=$PASSWORD
+psql -U postgres -c "DROP DATABASE blokus;"
+psql -U postgres -c "DROP USER blokus;"
+unset PGPASSWORD
