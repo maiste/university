@@ -1,0 +1,191 @@
+.TH MPSH 1 "3 Janvier 2019"
+
+.SH NOM
+mpsh \- Mon petit shell
+
+.SH SYNOPSIS
+mpsh a été réalisé dans le cadre du projet de Système et C pour le semestre 5 de la licence Info et Maths-Info de P7.
+Celui-ci a été réalisé par l'équipe 1 (cf section AUTEURS).
+
+.SH COMPILATION
+
+.SS make
+compile les fichiers de mpsh.
+
+.SS make install
+lance la compilation et créé un répertoire ~/mpsh qui contient l'exécutable mpsh. Pour pouvoir le lancer, depuis n'importe où,
+il faut ajouter ~/mpsh au PATH. Cela ajoute aussi la page de man dans ~/mpsh/man/man1. Pour pouvoir l'avoir avec le man de n'importe où,
+il faut ajouter ~/mpsh/man au MANPATH. À privilégier !
+
+.SS make mrproper
+supprimer tous les fichiers et le dossier mpsh.
+
+.SS make clean
+nettoie les .o générés par la compilation.
+
+.SH FONCTIONNALITÉS
+Dans le cadre du projet, nous avons implémenté le nécessaire du script minimum auquel s'ajoute de nombreuses options.
+Le choix a été fait de ne pas couvrir toute la grammaire de Bash, mais une large sous-partie, analysable via Lex/Yacc.
+
+.SS Structure d'une expression
+Voir le fichier src/parser/mpsh.y.
+
+.SS Base du Shell
+mpsh supporte aussi bien les liens relatifs qu'absolus. Il ne supporte pas le ~ dans la ligne de commandes.
+L'ensemble des commandes est lancé à l'avant-plan. Il est possible de lancer les commandes à l'arrière-plan en utilisant
+le symbole "&". Mpsh permet de lancer les commandes usuelles externes du shell qui n'ont donc pas été recodées. Un certain
+nombre de commandes internes ont, elles, été recodées (cf section BUILTINS).
+
+.SS .mpshrc et .mpsh_history
+
+.B mpshrc
+doit être situé dans le $HOME de l'utilisateur. Il contient sa configuration sous forme de commandes à exécuter les
+unes après les autres. S'il n'existe pas le shell charge ses fonctionnalités par défaut.
+
+.B mpsh_history
+contient l'historique des commmandes lancées dans mpsh. S'il n'existe pas, il est créé au lancement de mpsh.
+
+.SS Pipes et redirections
+Dans mpsh, il est possible de chainer des commandes au travers des pipes et de modifier les flux d'entrée, de sortie standard et
+d'erreur. Pour cela, il faut utiliser le "|" et ">" ou "<".
+
+.B |
+permet de lancer des commandes qui partagent leurs entrées et sorties.
+Par exemple, "yes | head" affichera 10 fois le mot yes.
+
+.B >
+permet d'écrire la sortie standard dans un fichier. Par exemple "cat file > output.txt"
+
+.B <
+permet de fournir un fichier dans lequel la commande doit lire. Par exemple, "cat < output.txt"
+
+.B 2>
+permet de récupérer la sortie d'erreur dans un fichier. Par exemple, "cat no_one 2> stderr.txt".
+
+.SS Chainage de commandes && || ;
+Mpsh permet de chainer des commandes de la même manière que les interpréteurs de commandes usuelles. Nous pouvons donc effectuer
+des commandes sous forme conditionnelle avec "&&" et "||".
+
+.B &&
+lance les commandes tant que la précédente s'exécute correctement. "cat test && rm test" permet de lancer "rm test" si "cat test"
+s'execute correctement.
+
+.B ||
+lance la commande suivante si la précédente échoue. "cat test || mkdir test" : cela effectue "mkdir test" uniquement si "cat test"
+échoue.
+
+.B ;
+exécute les commandes les unes après les autres. "echo Hello ; echo End", par exemple. La variable "$?" contiendra alors le code de retour de la dernière commande.
+
+.SS Variables
+Les variables sont gérées de 2 manières différentes dans mpsh, par l'environnement et par un environnement spécial pour les variables.
+L'environnement sert plutôt aux variables "globales" quand l'autre sert plus à des variables locales. Leur valeur est récupérable via
+$var.
+
+.B Environnement
+il est géré de la même façon que dans bash. Il est possible d'y ajouter des variables dont la durée de vie est celle du shell.
+Pour avoir des variables d'environnement qui perdurent à la fermeture du shell, il faut les mettre dans le mpshrc. Il contient notamment
+la variable CHEMIN qui indique où le shell doit chercher les exécutables et la variable INVITE qui donne l'affichage du prompt du shell.
+Nous pouvons aussi y trouver des variables courantes comme USER, SHELL, PATH, LANG, etc. Il est transmis aux processus enfants.
+
+.B Environnement de variables
+il contient les variables qui sont propres à chaque shell. Elles peuvent être créées et supprimées dans le shell. Cet environnement
+n'est pas passé aux processus enfants. Les variables disparaissent quand le shell termine. Il est possible de les avoir de façon
+pérène en les ajoutant dans mpshrc. Il contient la variable $?, indiquant le code de retour de la dernière commande.
+
+.SS Complétion
+Mpsh effectue une complétion des commandes et des fichiers à l'appui de la touche tabulation.
+
+.B Commandes principales
+pour les commandes (c'est à dire le premier mot d'une ligne), mpsh va chercher à compléter le mot en se basant sur les fichiers exécutables présents dans les dossiers spécifiés dans la variable "$CHEMIN". Si le  nom d'un de ces dossiers se termine par "//", mpsh cherchera aussi des fichiers exécutables dans les sous-répertoires de ce dossier.
+
+.B Arguments
+les mots suivants une commande principale seront complétés en fonctions des noms de fichiers du répertoire courant (défini par la varaible "$?").
+
+.B Commande complete
+La commande "complete" permet de spécifier des suffixes possibles pour les arguments d'une commande principale. Par exemple, exécuter "complete gcc .c" va inidiquer à mpsh de compléter les arguments de la commande "gcc" avec les fichiers du répertoires courants qui se terminent par ".c".
+L'utilisateur peut spécifier plusieurs suffixes possibles en exécutant la commande "complete" plusieurs fois.
+
+.SS Signaux
+Mpsh est capable de gérer les signaux SIGINT, SIGTSTOP et SIGTSTP. Dans le shell, s'il n'y a aucun processus, aucune action n'est
+effectuée. Sinon le signal est transmis au processus enfant.
+
+.SS Arithmétiques et boucles
+
+.B Les expressions arithmétiques
+un argument d'une commande peut être une expression arithmétique entière. Ces dernières s'écrivent entre accolades "{}". Les opérations supportées sont "+", "-", "*". Il est aussi possible d'utiliser des variables. Par exemple, "set a 5; echo {1+2*$a}" va afficher "11".
+Si la variable "$a" n'existe ni en local, ni dans l'environnement ou n'est pas une valeure entière, elle est remplacée par "0".
+Un message d'alerte s'affiche.
+
+.B La boucle while
+mpsh permet d'exécuter des instructions en boucle suivant une condition. Par exemple, une commande de la forme "while a; b; c" va executer les commandes "b" et "c" tant que la variable "$a" est differente de "0". La condition d'arrêt peut aussi être une expression arithmétique.
+
+.B la boucle for
+une boucle for de la forme "for a from {3} to {2*3}; echo $a" va afficher tous les nombres de "3" à "6".
+
+.SS BUILTINS
+
+.TP
+ \fBcd [dir]\fR change le répertoire du shell courant et met à jour pwd. Si aucun répertoire n'est spécifié, le répertoire courant est
+ celui de $HOME.
+
+.TP
+ \fBhistory [-n] [n]\fR commande de parcours de l'historique. Sans argument, il affiche l'historique de mpsh_history. Avec l'argument n,
+ il relance la n-ième commande de l'historique. Avec l'argument -n, il change le nombre de commandes que l'historique peut enregistrer.
+
+.TP
+\fBexit [n]\fR quitte le shell courant avec la valeur $? si n n'est pas spécifié. Sinon, il quitte en renvoyant la valeur de n
+
+.TP
+\fBexport [var=value] [var]\fR ajoute var à l'environnement. Si var existe déjà, il modifie sa valeur avec value si elle est spécifiée,
+sinon il ne fait rien. export sans argument affiche l'environnement.
+
+.TP
+\fBpwd\fR affiche le chemin du répertoire courant du shell, sans tenir compte des liens symboliques.
+
+.TP
+ \fBset var value\fR permet de définir une variable var avec la valeur value. Elle s'écrit aussi sous la forme var=value
+
+.TP
+\fBunset var\fR permet de supprimer une variable de l'environnement de variables locales.
+
+.TP
+\fBalias [name=value]\fR permet de définir l'alias name avec value. Mpsh remplace name à chaque fois qu'il le trouve dans la ligne
+de commandes. Alias sans argument affiche la liste des alias.
+
+.TP
+\fBunalias name\fR retire name de la liste des alias.
+
+.TP
+\fBtype name [..name]\fR affiche le type de chaque commande passée en argument. Si ce n'est pas une builtin, il affiche le chemin
+de l'exécutable.
+
+.TP
+\fBumask [mode]\fR change le umask du shell. Sans argument, il affiche le masque courant.
+
+.TP
+\fBecho [str]\fR n'a pas été codé comme une builtin. Mpsh utilise celle de GNU. echo $var remplace $var et affiche sa valeur.
+
+.TP
+\fBcat [ref]\fR n'a pas été codé comme une builtin. Mpsh utilise celle de GNU.
+
+.TP
+\fBls [refs]\fR n'a pas été codé comme une builtin. Mpsh utilise celle de GNU.
+
+.TP
+\fBmkdir [-p] rep\fR n'a pas été codé comme une builtin. Mpsh utilise celle de GNU.
+
+.SH AUTEURS
+.TS
+tab(;) box;
+c s
+c| c|.
+Equipe 1
+_
+Pablito BELLO;pablo bello
+Etienne MARAIS;elusyo
+Alexandre MOINE;nobrakal
+.TE
+
+.SH COPYRIGHT
+© Équipe 1 - BELLO MOINE MARAIS
