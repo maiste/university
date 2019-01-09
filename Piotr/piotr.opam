@@ -1,0 +1,17 @@
+opam-version: "2.0"
+name: "piotr"
+version: "0.1"
+license: "MIT"
+maintainer: [
+    "Pablo Bello"
+    "Étienne Marais"
+]
+authors: [
+    "Pablo Bello" 
+    "Étienne Marais"
+]
+
+depends: [
+  "dune" {build}
+  "odoc" {doc}
+]

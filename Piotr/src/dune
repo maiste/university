@@ -1,0 +1,10 @@
+(executable
+ (name liner)
+ (public_name piotr)
+ (libraries graphics unix)
+)
+
+;; Avoid unused warning 
+(env
+   (dev (flags :standard -w -27))
+)
