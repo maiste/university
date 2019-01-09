@@ -1,0 +1,20 @@
+#!/bin/bash
+
+CP=.
+JFX_ZIP=$PWD/javafx-sdk-11.0.1/lib/src.zip
+JFX_SWT=$PWD/javafx-sdk-11.0.1/lib/javafx-swt.jar
+JFX_WEB=$PWD/javafx-sdk-11.0.1/lib/javafx.web.jar
+JFX_BASE=$PWD/javafx-sdk-11.0.1/lib/javafx.base.jar
+JFX_FXML=$PWD/javafx-sdk-11.0.1/lib/javafx.fxml.jar
+JFX_MEDIA=$PWD/javafx-sdk-11.0.1/lib/javafx.media.jar
+JFX_SWING=$PWD/javafx-sdk-11.0.1/lib/javafx.swing.jar
+JFX_CONTROLS=$PWD/javafx-sdk-11.0.1/lib/javafx.controls.jar
+JFX_GRAPHIC=$PWD/javafx-sdk-11.0.1/lib/javafx.graphics.jar
+LIB="-Djava.library.path=$PWD/javafx-sdk-11.0.1/lib -Dfile.encoding=UTF-8"
+CL_PATH=$CP:$JFX_ZIP:$JFX_SWT:$JFX_WEB:$JFX_BASE:$JFX_FXML:$JFX_MEDIA:$JFX_SWING:$JFX_CONTROLS:$JFX_GRAPHIC
+MODULE_PATH=$PWD/javafx-sdk-11.0.1/lib
+MODULES="javafx.controls,javafx.fxml"
+
+cd $PWD/bin/production/Projet_Julia
+
+/usr/lib/jvm/java-11/bin/java $LIB --module-path $MODULE_PATH --add-modules=$MODULES -classpath $CL_PATH view.graphic.MainStage $@
