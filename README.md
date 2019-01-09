@@ -5,5 +5,5 @@ My school projects at University Paris 7
  * ![Blokus <JAVA>](https://github.com/elusyo/School_projects/tree/master/Blokus)
  * ![Draw Me <JAVA>](https://github.com/elusyo/School_projects/tree/master/Draw-me)
  * ![Piotr <OCaml>]()
- * ![Julia <JAVA>]()
+ * ![Julia <JAVA>](https://github.com/elusyo/School_projects/tree/master/Julia)
  * ![Mpsh <C>](https://github.com/elusyo/School_projects/tree/master/Mpsh)
