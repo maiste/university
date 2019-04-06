@@ -7,5 +7,5 @@ My school projects at University Paris 7
  * ![Piotr <OCaml> L3](https://github.com/elusyo/School_projects/tree/master/Piotr)
  * ![Julia <JAVA> L3](https://github.com/elusyo/School_projects/tree/master/Julia)
  * ![Mpsh <C> L3](https://github.com/elusyo/School_projects/tree/master/Mpsh)
- * ![Cimple <C> L3](https://github.com/kolibs/School_projects)
- * ![Floodus <C> L3](https://github.com/kolibs/School_projects) 
+ * ![Cimple <C> L3](https://github.com/kolibs/School_projects) en cours
+ * ![Floodus <C> L3](https://github.com/kolibs/School_projects) en cours
