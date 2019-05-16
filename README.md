@@ -2,10 +2,10 @@
 My school projects at University Paris 7
 
 ## Links : 
- * ![Blokus <JAVA> L2](https://github.com/elusyo/School_projects/tree/master/Blokus)
- * ![Draw Me <JAVA> L2](https://github.com/elusyo/School_projects/tree/master/Draw-me)
- * ![Piotr <OCaml> L3](https://github.com/elusyo/School_projects/tree/master/Piotr)
- * ![Julia <JAVA> L3](https://github.com/elusyo/School_projects/tree/master/Julia)
- * ![Mpsh <C> L3](https://github.com/elusyo/School_projects/tree/master/Mpsh)
- * ![Cimple <C> L3](https://github.com/kolibs/School_projects) en cours
- * ![Floodus <C> L3](https://github.com/kolibs/School_projects) en cours
+ * ![Blokus](https://github.com/elusyo/School_projects/tree/master/Blokus) - **JAVA** // L2.S4
+ * ![Draw Me](https://github.com/elusyo/School_projects/tree/master/Draw-me) - **JAVA** // L2.S4
+ * ![Julia](https://github.com/elusyo/School_projects/tree/master/Julia) - **JAVA** // L3.S5
+ * ![Mpsh](https://github.com/elusyo/School_projects/tree/master/Mpsh) - **C** // L3.S5
+ * ![Piotr](https://github.com/elusyo/School_projects/tree/master/Piotr) - **OCaml** // L3.S5
+ * ![Cimple](https://github.com/kolibs/School_projects) - **C** // L3.S6 en cours
+ * ![Floodus](https://github.com/kolibs/School_projects/tree/master/Floodus) - **C** // L3.S6
