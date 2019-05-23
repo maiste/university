@@ -1,11 +1,22 @@
-# School_projects
-My school projects at University Paris 7
+# University projects
+My school projects at University Paris 7. Not personal but for my studies.
 
-## Links : 
- * ![Blokus](https://github.com/elusyo/School_projects/tree/master/Blokus) - **JAVA** // L2.S4
- * ![Draw Me](https://github.com/elusyo/School_projects/tree/master/Draw-me) - **JAVA** // L2.S4
- * ![Julia](https://github.com/elusyo/School_projects/tree/master/Julia) - **JAVA** // L3.S5
- * ![Mpsh](https://github.com/elusyo/School_projects/tree/master/Mpsh) - **C** // L3.S5
- * ![Piotr](https://github.com/elusyo/School_projects/tree/master/Piotr) - **OCaml** // L3.S5
- * ![Cimple](https://github.com/kolibs/School_projects) - **C** // L3.S6 en cours
- * ![Floodus](https://github.com/kolibs/School_projects/tree/master/Floodus) - **C** // L3.S6
+## L1 :
+ None
+
+## L2 :
+
+#### S4 :
+ * ![Blokus](https://github.com/elusyo/School_projects/tree/master/Blokus) - **JAVA** 
+ * ![Draw Me](https://github.com/elusyo/School_projects/tree/master/Draw-me) - **JAVA**
+
+## L3
+
+#### S5
+ * ![Julia](https://github.com/elusyo/School_projects/tree/master/Julia) - **JAVA** 
+ * ![Mpsh](https://github.com/elusyo/School_projects/tree/master/Mpsh) - **C** 
+ * ![Piotr](https://github.com/elusyo/School_projects/tree/master/Piotr) - **OCaml** 
+
+#### S6
+ * ![Cimple](https://github.com/kolibs/tree/master/Cimple) - **C**
+ * ![Floodus](https://github.com/kolibs/School_projects/tree/master/Floodus)

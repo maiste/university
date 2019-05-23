@@ -1,0 +1,134 @@
+.TH CIMPLE 1 "January, 17th May"
+
+.SH NAME
+cimple \- Console Image Manipulation Program, Logic and Easy
+
+.SH SYNOPSIS
+Cimple is a console based image editor written in C language. 
+
+.SH COMPILATION
+You can compile with the following options
+
+.SS make
+compile cimple files
+
+.SS make coverage
+after using cimple, you can create a coverage report with this option
+
+.SS make cleanall
+clean builds, tests and coverage directories
+
+.SS ./cimple
+run cimple
+
+.SH Commands
+When using cimple, you can employ various commands. [option] means optional and <a|b> means a choice between a or b. Each action is applied on the current buffer.
+
+.SS HELP
+
+.TP
+\fBhelp\fR Display help.
+
+.SS TRANSFORMATIONS
+
+.TP
+\fBsymmetry <v|h>\fR Command to apply a vertical or horizontal symmetry to current buffer image.
+
+.TP
+\fBrotate [-r] n\fR Command to rotate image by n degrees. If -r is present, rotate in counter-clockwise. In case n isn't a mulitple of 90, raise an error.
+
+.TP
+\fBcopy [-a]\fR Copy an area into the buffer. If the flag -a is passed, applies to all the image, otherwise launches select mode in buffer image screen. 
+
+.TP
+\fBcut [-a]\fR Copy an area into the buffer and fill the area with black. Put the selected area in black and white. If the flag -a is passed, applies to all the image, otherwise launches select mode in buffer image screen.
+
+.TP
+\fBpaste [-a]\fR Paste the buffer onto the current image. If the flag -a is passed, applies to all the image, otherwise launches select mode in buffer image screen.
+
+.SS FRAME MODIFICATIONS
+
+.TP
+\fBtruncate [-s origin_x origin_y end_x end_y]\fR Command to specify a new square inside the current buffer image. Launch select mode and focus on image screen if command launches without any arguments. If -s is present , user have to specify the square dimensions in command line.
+
+
+.TP
+\fBresize <workspace|image> width height\fR Command to resize an image or the workspace (paint-like method). If the image is resize width and height are the new size. Else, it specifies the amount of pixels to add or remove to the current image.
+
+.SS COLOR MODIFICATIONS
+
+.TP
+\fBnegative [-a]\fR Put the selected area in negative. If the flag -a is passed, applies to all the image, otherwise launches select mode in buffer image screen.
+
+.TP
+\fBgreyscale [-a]\fR Put the selected area in greyscale. If the flag -a is passed, applies to all the image, otherwise launches select mode in buffer image screen.
+
+
+.TP
+\fBbnw [-a]\fR Put the selected area in black and white. If the flag -a is passed, applies to all the image, otherwise launches select mode in buffer image screen.
+
+.TP
+\fBfill [-a] red green blue alpha\fR Command to fill an area in image with a rgba color. If the flag -a is passed, fills all the image, otherwise launches select mode in buffer image screen.
+
+.TP
+\fBreplace [-m margin] [-a] red green blue alpha red green blue alpha\fR Command to replace a color with another one. If margin is specify, it grabs more colors. 
+
+.TP
+\fBcontrast [-a] percent\fR Increase or decrease the contrast of the current buffer. Put the selected area in black and white. If the flag -a is passed, applies to all the image, otherwise launches select mode in buffer image screen.
+
+.TP
+\fBlight [-a] percent\fR Increase or decrease the light of the current buffer. Copy an area into the buffer and fill the area with black. If the flag -a is passed, applies to all the image, otherwise launches select mode in buffer image screen.
+
+.SS SCRIPTS
+
+.TP
+\fBapply_script path\fR Apply the script located in given path to the current buffer.
+
+.TP
+\fBedit_script path\fR Open the script located at path if it exists, otherwise create a new one.
+
+.SS MULTIPLE ACTIONS
+
+.TP
+\fBbundle regex command\fR Apply a command (bnw, negative, greyscale) to a set of images, specified by a regex, in the current directory.
+
+.SS FILE AND WINDOW MANAGER
+
+.TP
+\fBload [-w window_id] path\fR Command to load image in a window. To load an image in a specific window, already opened, you need to add -w flag and the window id. If the id isn't specify, it opens in a new window.
+
+.TP
+\fBsave [-p image_path]\fR Command to save an image used in the current window. In order to change image format , we need to use -p and write a valid image path with the new extension.
+
+.TP
+\fBlist_buffer\fR List all opened buffers.
+
+.TP
+\fBswitch_buffer window_id\fR Switch to the destination buffer.
+
+.TP
+\fBmove_buffer window_id\fR Move current image to another opened window. If the destination window is empty, it changes the current window id. Otherwise, it moves the current window content into the destination one.
+
+.TP
+\fBquit [-w window_id]\fR Quit a buffer specified by window_id. If none is specified, applies to all buffers opened.
+
+.SH SELECT OR CLICK MODE
+In select mode, you can use the click and drag to select an area, F to free the selection, Q to quit and cancel and V to validate. In click mode, you can use Q to quit and click to select a point.
+
+.SH AUTEURS
+.TS
+tab(;) box;
+c s
+c| c|.
+CIMPLE
+_
+Aliaksandr BUDZKO;leethater
+Etienne MARAIS;kolibs
+Karim MEZHER;kimo16
+.TE
+
+.SH GOT
+In Game of Thrones, we think that Arya Stark will kill Daenerys because she killed John and Gendry will become the new king. (05/17/2019)
+
+.SH COPYRIGHT
+© MIT - BUDZKO MARAIS MEZHER
