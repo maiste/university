@@ -18,5 +18,5 @@ My school projects at University Paris 7. Not personal but for my studies.
  * ![Piotr](https://github.com/elusyo/School_projects/tree/master/Piotr) - **OCaml** 
 
 #### S6
- * ![Cimple](https://github.com/kolibs/tree/master/Cimple) - **C**
- * ![Floodus](https://github.com/kolibs/School_projects/tree/master/Floodus)
+ * ![Cimple](https://github.com/kolibs/School_projects/tree/master/Cimple) - **C**
+ * ![Floodus](https://github.com/kolibs/School_projects/tree/master/Floodus) - **C**
