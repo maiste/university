@@ -1,7 +1,6 @@
 # Blokus - mai 2018
 
 ![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)
-![GitHub release](https://img.shields.io/github/release/elusyo/Blokus.svg?style=for-the-badge)
 
 ### Partie Technique
 
