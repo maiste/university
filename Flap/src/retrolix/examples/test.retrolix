@@ -1,0 +1,13 @@
+def f()
+  local a:
+    a <- copy 42;
+   %rdi <- copy a;
+    observe_int();
+    ret;
+end
+
+
+globals()
+  f();
+  ret;
+end

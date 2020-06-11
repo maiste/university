@@ -1,0 +1,22 @@
+def fact()
+  locals tmp:
+  jumpif lte %rdi, 1 -> f1, f2;
+  f1:
+    %rax <- copy 1;
+    ret;
+  f2:
+    tmp <- copy %rdi;
+    %rdi <- sub %rdi, 1;
+    fact();
+    %rax <- mul %rax, tmp;
+    ret;
+end
+
+
+globals()
+  %rdi <- copy 5;
+  f();
+  %rdi <- copy %rax;
+  observe_int();
+  ret;
+end

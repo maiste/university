@@ -1,0 +1,22 @@
+def fact(n)
+  local i, res:
+    res <- copy 1;
+    i <- copy n;
+    L1:
+      jumpif gt i,0 -> L2, L3;
+    L2:
+      res <- mul res, i;
+      i <- sub i, 1;
+      jump L1;
+    L3:
+      %rax <- copy res;
+      ret;
+end
+
+globals(x)
+  fact(5);
+  x <- copy %rax;
+  %rdi <- copy x;
+  observe_int();
+  ret;
+end

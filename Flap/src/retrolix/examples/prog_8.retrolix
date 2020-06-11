@@ -1,0 +1,25 @@
+def add_eight_int(a7, a8)
+  %rax <- copy 0;
+  %rax <- add %rax, %rdi;
+  %rax <- add %rax, %rsi;
+  %rax <- add %rax, %rdx;
+  %rax <- add %rax, %rcx;
+  %rax <- add %rax, %r8;
+  %rax <- add %rax, %r8;
+  %rax <- add %rax, a7;
+  %rax <- add %rax, a8;
+  ret;
+end
+
+globals ()
+  %rdi <- copy 1;
+  %rsi <- copy 2;
+  %rdx <- copy 3;
+  %rcx <- copy 4;
+  %r8  <- copy 5;
+  %r9  <- copy 6;
+  add_eight_int(7,8);
+  %rdi <- copy %rax;
+  observe_int();
+  ret;
+end

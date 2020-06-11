@@ -1,0 +1,7 @@
+fun curry (f) =
+  \(x) => \(y) => f(x,y)
+
+fun sum (x,y) = x + y
+val c1 = curry(sum)
+val c2 = c1(2)
+val c3 = c2(3)

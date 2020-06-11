@@ -1,0 +1,13 @@
+globals(res)
+    local i:
+          res <- copy 1;
+          i <- copy 5;
+          L1:
+            jumpif gt i, 0 -> L2, L3;
+          L2:
+            res <- mul res, i;
+            i <- sub i, 1;
+            jump L1;
+          L3:
+            %rdi <- copy res;
+end

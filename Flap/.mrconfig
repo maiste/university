@@ -1,0 +1,33 @@
+[students/marais-moine]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:maiste/compilation-m1-2019.git marais-moine
+
+[students/sablery-nivet]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:sablery/compilation-m1-2019.git sablery-nivet
+
+[students/bozman-palmer]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:spalme25/compilation-m1-2019.git bozman-palmer
+
+[students/luo]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:xueyu/compilation-m1-2019.git luo
+
+[students/etame_mayi]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:etamemay/compilation-m1-2019.git etame_mayi
+
+[students/chaboche]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:chaboche/compilation-m1-2019.git chaboche
+
+[students/viau]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:Shtrow/compilation-m1-2019.git viau
+
+[students/arrial-benhmida]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:Haifa/compilation-m1-2019.git arrial-benhmida
+
+[students/haouzane-luong]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:haouzane/compilation-m1-2019.git haouzane-luong
+
+[students/malaingre-leclercq]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:malaingr/compilation-m1-2019.git malaingre-leclercq
+
+[students/diakite]
+checkout = git clone git@gaufre.informatique.univ-paris-diderot.fr:diakiteo/compilation-m1-2019.git diakite
+

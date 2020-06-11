@@ -1,0 +1,4 @@
+fun addk (k) = \(x) => x + k
+val test = addk(2)
+
+val x = test(2)

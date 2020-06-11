@@ -28,4 +28,4 @@ My school projects at University Paris 7. Not personal but for my studies.
 
 ### S2
  * ![GenConcat](https://github.com/maiste/School_projects/tree/master/GenConcat) - **OCaml**
-
+ * ![Flap](https://github.com/maiste/School_project/tree/master/Flap) - **OCaml**

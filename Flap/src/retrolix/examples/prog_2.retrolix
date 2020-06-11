@@ -1,0 +1,7 @@
+globals (x,y,z,k,w)
+  x <- copy 6;
+  y <- copy 7;
+  z <- mul y,x;
+  k <- sub z,x;
+  w <- div z,x;
+end

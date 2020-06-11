@@ -1,0 +1,16 @@
+# -*- makefile-gmake -*-
+
+#################################
+## Package local configuration ##
+#################################
+.PHONY: all
+
+all: all-generic
+
+STUDENTS  = $(shell cat AUTEURS | tr '\n' ',' | cut -d, -f1,4 | tr ',' '-')
+
+VERSION	  = 19.1
+TARGET	  = flap
+TARGETEXT = flap
+PACKAGE	  = flap-$(STUDENTS)-$(VERSION)
+
