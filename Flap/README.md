@@ -1,6 +1,6 @@
 # Projet de Compilation 2019 - 2020
 
-** M1 - Université de Paris **
+**M1 - Université de Paris**
 
 ## Énoncé
 
