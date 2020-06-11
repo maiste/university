@@ -1,0 +1,5 @@
+(executable
+  (name genconcat)
+  (public_name genconcat)
+  (libraries psq)
+)

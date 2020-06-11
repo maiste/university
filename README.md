@@ -26,3 +26,6 @@ My school projects at University Paris 7. Not personal but for my studies.
 ### S1
  * ![Emag](https://github.com/maiste/School_projects/tree/master/Emag) - **C++**
 
+### S2
+ * ![GenConcat](https://github.com/maiste/School_projects/tree/master/GenConcat) - **OCaml**
+

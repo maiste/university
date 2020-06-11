@@ -1,0 +1,27 @@
+opam-version: "1.2"
+name: "genconcat"
+version: "2.2"
+license: "Licence MIT"
+synopsis: "Concat"
+
+homepage: "https://gaufre.informatique.univ-paris-diderot.fr/maiste/pfa-2020"
+bug-reports: "https://gaufre.informatique.univ-paris-diderot.fr/maiste/pfa-2020/issues"
+
+maintainer: [
+  "Valentin Chaboche <valentin.chb@gmail.com>"
+  "Étienne Marais <etiennemarais@maiste.fr>"
+]
+
+authors: [
+  "Valentin Chaboche <valentin.chb@gmail.com>"
+  "Étienne Marais <etiennemarais@maiste.fr>"
+]
+
+depends: [
+  "dune" {build}
+  "ocaml" {>= "4.05"}
+  "psq" {>= "0.2"}
+]
+
+build: ["dune" "build" "-p" name "-j" jobs]
+
