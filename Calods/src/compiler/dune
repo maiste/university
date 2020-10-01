@@ -1,0 +1,11 @@
+(ocamllex lexer)
+
+(menhir
+ (flags --explain --inspection --table)
+ (modules parser)
+)
+
+(library
+ (name compiler)
+ (libraries menhirLib automata)
+)

@@ -1,0 +1,4 @@
+(library
+  (name prism)
+  (libraries compiler automata)
+)

@@ -1,0 +1,32 @@
+opam-version: "1.2"
+name: "calods"
+version: "0.1"
+license: "Licence MIT"
+synopsis: "Concise Algorithm Language for Observable Distributed Systems"
+description: """
+ Calods is a simple language to describe distributed algorithms and check
+ their behaviour.
+"""
+
+homepage: "https://gaufre.informatique.univ-paris-diderot.fr/maiste/chaboche-marais-plong-1920"
+bug-reports: "https://gaufre.informatique.univ-paris-diderot.fr/maiste/chaboche-marais-plong-1920/issues"
+
+maintainer: [
+  "Valentin Chaboche <valentin.chb@gmail.com>"
+  "Étienne Marais <etiennemarais@maiste.fr>"
+]
+
+authors: [
+  "Valentin Chaboche <valentin.chb@gmail.com>"
+  "Étienne Marais <etiennemarais@maiste.fr>"
+]
+
+depends: [
+  "dune" {build}
+  "ocaml" {>= "4.07"}
+  "menhir" {>= "2.0"}
+  "cmdliner"
+]
+
+build: ["dune" "build" "-p" name "-j" jobs]
+

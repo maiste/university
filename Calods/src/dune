@@ -1,0 +1,5 @@
+(executable
+  (name calods)
+  (public_name calods)
+  (libraries compiler common prism graph automata)
+)

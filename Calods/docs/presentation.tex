@@ -1,0 +1,161 @@
+\documentclass[11pt]{beamer}
+\usetheme{CambridgeUS}
+
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{minted}
+\usepackage[french]{babel}
+
+
+\author{Chaboche - Marais}
+\title{CALODS - Concise Algorithm Language for Observing Distributed Systems}
+%\setbeamercovered{transparent} 
+%\setbeamertemplate{navigation symbols}{} 
+%\logo{} 
+%\institute{} 
+%\date{} 
+%\subject{} 
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+\tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}{Notre objectif}
+Projet de recherche avec M. Sangnier et M. Laroussinie, \textit{CALODS}:
+\begin{itemize}
+  \item définir un langage pour décrire les algorithmes distribués
+  \item représenter graphiquement toutes les exécutions d'un programme
+  \item créer un système de vérification de propriétés
+  \item permettre d'ordonner les processus afin de contraindre l'exécution des programmes
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Introduction}{Notre projet}
+Que fait \textit{CALODS} ?
+\begin{itemize}
+  \item production d'un fichier Graphviz représentant le diagramme d'états
+  \item production d'un fichier \textit{Prism} correspondant à la traduction d'un programme \textit{CALODS}
+  \item production d'un automate de Büchi non-déterministe pour ordonner l'exécution des programmes
+\end{itemize}
+\end{frame}
+
+\section{Architecture, conception et gestion de projet}
+\begin{frame}{Architecture}
+Composition du projet :
+\begin{itemize}
+  \item compiler: % parser, module, gestion d'erreur, fifo
+  \begin{itemize}
+    \item But: générer une structure abstraite représentant le programme
+    \item Dépendance: menhir
+  \end{itemize}
+  \item prism: % transformation d'ast, langage prism, base sur les expressions omega régulières
+  \begin{itemize}
+    \item But: traduire la structure abstraite en un programme \textit{Prism}
+    \item Dépendance: Prism Model Checker
+  \end{itemize}
+  \item graph: % graphes, execution symbolique, Graphviz
+  \begin{itemize}
+    \item But: représenter le programme sous forme de diagramme d'états
+    \item Dépendance: Graphviz
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Conception}
+Éléments de conception du projet:
+\begin{itemize}
+  \item \textbf{Modularité}: Compiler est une interface qui permet d'abstraire le code notre compilateur
+  \item \textbf{Inter-dépendance}: Prism et Graph dépendent de Compiler pour la structure de données $\Rightarrow$ pas de dépendance entre Prism et Graph
+  \item \textbf{Avantage}: La structure en modules permet de changer le contenu ou d'ajouter de nouveaux éléments facilement
+  \item \textbf{Difficulté}: comprendre \textit{Prism} et générer les graphes en utilisant les bonnes structures de données
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Gestion de projet}
+Répartition des rôles et organisation:
+\begin{itemize}
+  \item \textbf{Rôles}:
+  \begin{itemize}
+    \item Compiler: ensemble
+    \item Prism: Valentin, rejoint par Étienne (module plus conséquent)
+    \item Graph: Étienne
+  \end{itemize}
+  \item \textbf{Organisation}: réunions bi-mensuelles avec M. Sangnier et M. Laroussinie et échanges par mails
+  \item \textbf{Git}: utilisation de branches pour éviter les conflits et d'issues pour les bugs
+  \item \textbf{Tests}: présentation aux enseignants et exécution sur des exemples avec des résultats connus
+\end{itemize}
+\end{frame}
+
+\section{Programmation}
+\begin{frame}[fragile]{Module de compilation}
+\begin{minted}[fontsize=\tiny]{ocaml}
+(* Implement the compiler *)
+module Calods  : Compiler with type ast = Ast.program = struct
+  type ast = Ast.t
+
+  let parse_filename file =
+    let input = open_in file in
+    let lexbuf = Lexing.from_channel input in
+    let (header, processes) =
+      try
+        Parser.program Lexer.token lexbuf
+      with e -> Error.readable e lexbuf
+    in
+    let main =
+      try
+        Parser.main Lexer.main lexbuf
+      with e -> Error.readable e lexbuf
+    in
+    Ast.Program (header, processes, main)
+
+  let print_ast ast =
+    CalodsPrettyPrinter.print_program
+      Format.std_formatter ast
+
+  let check ast =
+    Checker.type_check ast
+end
+
+\end{minted}
+\end{frame}
+
+
+\section{COVID19}
+\begin{frame}{COVID-19}
+  Les impacts du Covid-19 sur notre travail:
+  \begin{itemize}
+    \item absence de réunion physique $\Rightarrow$ communication par mails, plus complexe pour expliquer les avancements
+    \item résultat semblable mais avec plus de possibilité d'éprouver le projet $\Rightarrow$ production plus robuste
+  \end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+Ce que l'on a tiré du projet:
+\begin{itemize}
+  \item \textbf{Apprentissage}:
+  \begin{itemize}
+    \item compréhension des algorithmes distribués et du matériel de preuves (model checkers, schedulers, etc)
+    \item maîtrise de \textit{OCaml} et mise en pratique du cours de PFA
+    \item manipulation des arbres de syntaxe abstraite pour la transformation de programmes.
+    \item utilisation poussée de git
+  \end{itemize}
+  \item \textbf{Continuité}: vérification de propriétés sur les graphes pour les comparer avec celles de \textit{Prism}
+  \item \textbf{Rétrospective}:
+  \begin{itemize}
+    \item utilisation plus poussée des modules et interfaces de \textit{OCaml}. 
+    \item amélioration de la communication au fil des mois
+  \end{itemize}   
+\end{itemize}
+\end{frame}
+
+\end{document}
