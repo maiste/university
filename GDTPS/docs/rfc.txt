@@ -1,0 +1,536 @@
+
+
+
+
+Network Working Group                                            B. Viau
+Internet-Draft                                                 E. Marais
+Intended status: Experimental                                    C. Yvon
+Expires: 3 April 2021                                         G. Roumage
+Version:  7.1                                                L. Bergerat
+Obsolete: draft-7.0.0                                           N. Quero
+                                                  N. Gillaizeau-Simonian
+                                                              R. Gauchée
+                                                               R. Souadi
+                                                          4 octobre 2020
+
+
+Viau, et al.              Expires 3 April 2021                  [Page 1]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
+
+
+                  GDTP - Good Duck Transfert Protocol
+                             draft-gdtp-07
+
+Table des matières
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Protocole des annonces  . . . . . . . . . . . . . . . . . . .   2
+     2.1.  Fonctionnement  . . . . . . . . . . . . . . . . . . . . .   2
+     2.2.  Structure des messages  . . . . . . . . . . . . . . . . .   3
+       2.2.1.  Format  . . . . . . . . . . . . . . . . . . . . . . .   3
+       2.2.2.  Exemple . . . . . . . . . . . . . . . . . . . . . . .   4
+     2.3.  Messages  . . . . . . . . . . . . . . . . . . . . . . . .   5
+       2.3.1.  Connexion . . . . . . . . . . . . . . . . . . . . . .   5
+       2.3.2.  Déconnexion . . . . . . . . . . . . . . . . . . . . .   6
+       2.3.3.  Publication d'annonce . . . . . . . . . . . . . . . .   6
+       2.3.4.  Mise à jour d'annonce . . . . . . . . . . . . . . . .   6
+       2.3.5.  Suppression d'annonce . . . . . . . . . . . . . . . .   7
+       2.3.6.  Chercher un domaine . . . . . . . . . . . . . . . . .   8
+       2.3.7.  Chercher parmi un domaine . . . . . . . . . . . . . .   8
+       2.3.8.  Récupérer ses annonces  . . . . . . . . . . . . . . .   9
+       2.3.9.  Récupérer l'adresse IP d'un tier connecté . . . . . .   9
+       2.3.10. Message inconnu . . . . . . . . . . . . . . . . . . .   9
+   3.  Protocole pair à pair . . . . . . . . . . . . . . . . . . . .  10
+     3.1.  Fonctionnement  . . . . . . . . . . . . . . . . . . . . .  10
+     3.2.  Connexion . . . . . . . . . . . . . . . . . . . . . . . .  10
+       3.2.1.  Format  . . . . . . . . . . . . . . . . . . . . . . .  10
+       3.2.2.  Action  . . . . . . . . . . . . . . . . . . . . . . .  10
+     3.3.  Déconnexion . . . . . . . . . . . . . . . . . . . . . . .  10
+       3.3.1.  Format  . . . . . . . . . . . . . . . . . . . . . . .  10
+       3.3.2.  Action  . . . . . . . . . . . . . . . . . . . . . . .  11
+     3.4.  Envoyer un message  . . . . . . . . . . . . . . . . . . .  11
+       3.4.1.  Format  . . . . . . . . . . . . . . . . . . . . . . .  11
+       3.4.2.  Action  . . . . . . . . . . . . . . . . . . . . . . .  11
+
+1.  Introduction
+
+   Le document présente le protocole GDTP de communication de petites
+   annonces.
+
+2.  Protocole des annonces
+
+2.1.  Fonctionnement
+
+   L'ensemble du protocole repose sur le protocole de couche transport
+   TCP.
+
+
+
+
+
+
+Viau, et al.              Expires 3 April 2021                  [Page 2]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
+
+
+   Le protocole fonctionne selon un schéma client/serveur pour la
+   gestion des annonces.  Le port de référence pour le serveur
+   gestionnaire est le port 1027.
+
+2.2.  Structure des messages
+
+2.2.1.  Format
+
+   *  Chaque message possède un en-tête qui correspond à son type parmi
+      la liste suivante:
+
+         CONNECT
+         CONNECT_OK
+         CONNECT_NEW_USER_OK
+         CONNECT_NEW_USER_KO
+         CONNECT_KO
+         NOT_CONNECTED
+         DISCONNECT
+         POST_ANC
+         POST_ANC_OK
+         POST_ANC_KO
+         MAJ_ANC
+         MAJ_ANC_OK
+         MAJ_ANC_KO
+         DELETE_ANC
+         DELETE_ANC_OK
+         DELETE_ANC_KO
+         REQUEST_DOMAIN
+         SEND_DOMAINE_OK
+         SEND_DOMAIN_KO
+         REQUEST_ANC
+
+
+
+Viau, et al.              Expires 3 April 2021                  [Page 3]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
+
+
+         SEND_ANC_OK
+         SEND_ANC_KO
+         REQUEST_OWN_ANC
+         SEND_OWN_ANC_OK
+         SEND_OWN_ANC_KO
+         REQUEST_IP
+         REQUEST_IP_OK
+         REQUEST_IP_KO
+         UNKNOWN_REQUEST
+         MSG
+         MSG_ACK
+
+   *  Chaque requête termine par une ligne avec ".\n".
+   *  Il est possible d'ajouter des arguments à chaque message.  Les
+      arguments sont représentés comme des chaînes de caractères
+      espacées par des sauts de ligne '\n'.  La liste se termine par
+      une ligne avec un '.\n'.
+   *  Tous les arguments seront transmis en écriture naturelle. Ils seront
+      lus comme des chaines de caractères (String), et convertis en d'autres
+      types (int, float, double...) si nécessaire.
+
+2.2.2.  Exemple
+
+   +-----------+
+   |REQUÊTE    |
+   |argument 1 |
+   |argument 2 |
+   |.          |
+   +-----------+
+
+
+
+
+Viau, et al.              Expires 3 April 2021                  [Page 4]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
+
+
+2.3.  Messages
+
+2.3.1.  Connexion
+
+2.3.1.1.  Format
+
+   +--------------------------------+
+   |CONNECT                         |
+   |<utilisateur> ou #<token>       |
+   |.                               |
+   +--------------------------------+
+
+2.3.1.2.  Action
+
+   Quand le serveur reçoit la demande de connexion, il rajoute une
+   entrée dans la structure de données qui contient le statut de
+   l'utilisateur⋅rice si celui⋅celle-ci n'existe pas déjà et définit un
+   token unique pour celui⋅celle-ci.  Dans le cas d'un⋅e
+   utilisateur⋅rice déjà existant⋅e, le client se connecte
+   en utilisant le token de connexion.  Il passe le statut de
+   l'utilisateur⋅rice a "connecté" et rajoute l'ip de
+   celui⋅celle-ci dans la structure.  Le serveur répond avec la
+   confirmation suivante :
+
+   *  En cas de réussite
+
+      +---------------+
+      |CONNECT_OK     |
+      |<token>        |
+      |<utilisateur>  |
+      |.              |
+      +---------------+
+
+   *  En cas réussite avec création de token
+
+      +---------------------+
+      |CONNECT_NEW_USER_OK  |
+      |<token>              |
+      |.                    |
+      +---------------------+
+
+   *  En cas d'échec pour un⋅e nouvel⋅le utilisateur⋅rice
+
+      +---------------------+
+      |CONNECT_NEW_USER_KO  |
+      |.                    |
+      +---------------------+
+
+   *  En cas d'échec
+
+
+      +-------------+
+      |CONNECT_KO   |
+      |.            |
+      +-------------+
+
+   * Dans le cas des futurs échanges avec le serveur, si 
+     l'utilisat⋅eur⋅rice n'est pas connecté, le serveur envoie :
+
+      +--------------+
+      |NOT_CONNECTED |
+      |.             |
+      +--------------+
+
+
+Viau, et al.              Expires 3 April 2021                  [Page 5]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
+
+
+2.3.2.  Déconnexion
+
+2.3.2.1.  Format
+
+   +-------------+
+   |DISCONNECT   |
+   |.            |
+   +-------------+
+
+2.3.2.2.  Action
+
+   Quand le serveur reçoit la demande de déconnexion, il ferme la
+   connexion.
+
+2.3.3.  Publication d'annonce
+
+2.3.3.1.  Format
+
+   +------------------+
+   |POST_ANC          |
+   |<domaine>         |
+   |<titre>           |
+   |<descriptif>      |
+   |<prix>            |
+   |.                 |
+   +------------------+
+
+2.3.3.2.  Action
+
+   *  En cas de succès, le serveur stocke l'annonce et renvoie
+
+      +------------------+
+      |POST_ANC_OK       |
+      |<id annonce>      |
+      |.                 |
+      +------------------+
+
+   *  En cas d'échec, il retourne
+
+      +------------------+
+      |POST_ANC_KO       |
+      |.                 |
+      +------------------+
+
+2.3.4.  Mise à jour d'annonce
+
+2.3.4.1.  Format
+
+
+
+
+Viau, et al.              Expires 3 April 2021                  [Page 6]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
+
+
+   +------------------+
+   |MAJ_ANC           |
+   |<id annonce>      |
+   |<domaine>         |
+   |<titre>           |
+   |<descriptif>      |
+   |<prix>            |
+   |.                 |
+   +------------------+
+
+   Dans le cas où la valeur ne doit pas être mise à jour, on insérera le
+   mot-clef 'null'.
+
+2.3.4.2.  Action
+
+   *  En cas de succès, le serveur met à jour l'annonce et renvoie
+
+      +-----------------+
+      |MAJ_ANC_OK       |
+      |<id annonce>     |
+      |.                |
+      +-----------------+
+
+   *  En cas d'échec, il retourne
+
+      +---------------+
+      |MAJ_ANC_KO     |
+      |.              |
+      +---------------+
+
+2.3.5.  Suppression d'annonce
+
+2.3.5.1.  Format
+
+   +------------------+
+   |DELETE_ANC        |
+   |<id annonce>      |
+   |.                 |
+   +------------------+
+
+2.3.5.2.  Action
+
+   *  En cas de succès, le serveur supprime l'annonce et renvoie
+
+      +--------------------+
+      |DELETE_ANC_OK       |
+      |<id annonce>        |
+      |.                   |
+      +--------------------+
+
+   *  En cas d'échec, il retourne
+
+      +------------------+
+      |DELETE_ANC_KO     |
+      |.                 |
+      +------------------+
+
+
+
+
+Viau, et al.              Expires 3 April 2021                  [Page 7]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
+
+
+2.3.6.  Chercher un domaine
+
+2.3.6.1.  Format
+
+   +-----------------+
+   |REQUEST_DOMAIN   |
+   |.                |
+   +-----------------+
+
+2.3.6.2.  Action
+
+   *  En cas de succès, le serveur renvoie
+
+      +----------------+
+      |SEND_DOMAINE_OK |
+      |<domaine 1>     |
+      |<domaine 2>     |
+      |[...]           |
+      |.               |
+      +----------------+
+
+   *  En cas d'échec, il retourne
+
+      +------------------+
+      |SEND_DOMAIN_KO    |
+      |.                 |
+      +------------------+
+
+2.3.7.  Chercher parmi un domaine
+
+2.3.7.1.  Format
+
+   +-------------+
+   |REQUEST_ANC  |
+   |<domaine>    |
+   |.            |
+   +-------------+
+
+2.3.7.2.  Action
+
+   *  En cas de succès, le serveur renvoie
+
+      +---------------+
+      |SEND_ANC_OK    |
+      |<id annonce 1> |
+      |<domaine 1>    |
+      |<titre 1>      |
+      |<descriptif 1> |
+      |<prix 1>       |
+      |<id annonce 2> |
+      |<domaine 2>    |
+      |<titre 2>      |
+      |<descriptif 2> |
+      |<prix 2>       |
+      |[...]          |
+      |.              |
+      +---------------+
+
+   *  En cas d'échec, il retourne
+
+
+
+Viau, et al.              Expires 3 April 2021                  [Page 8]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
+
+
+      +----------------+
+      |SEND_ANC_KO     |
+      |.               |
+      +----------------+
+
+2.3.8.  Récupérer ses annonces
+
+2.3.8.1.  Format
+
+   +------------------+
+   |REQUEST_OWN_ANC   |
+   |.                 |
+   +------------------+
+
+2.3.8.2.  Action
+
+   *  En cas de succès, le serveur renvoie
+
+      +------------------+
+      |SEND_OWN_ANC_OK   |
+      |<id annonce 1>    |
+      |<domaine 1>       |
+      |<titre 1>         |
+      |<descriptif 1>    |
+      |<prix 1>          |
+      |<id annonce 2>    |
+      |<domaine 2>       |
+      |<titre 2>         |
+      |<descriptif 2>    |
+      |<prix 2>          |
+      |[...]             |
+      |.                 |
+      +------------------+
+
+   *  En cas d'échec, il retourne
+
+      +--------------------+
+      |SEND_OWN_ANC_KO     |
+      |.                   |
+      +--------------------+
+
+2.3.9.  Récupérer l'adresse IP d'un tier connecté
+
+2.3.9.1.  Format
+
+   +------------------+
+   |REQUEST_IP        |
+   |<id annonce>      |
+   |.                 |
+   +------------------+
+
+2.3.9.2.  Action
+
+   *  En cas de succès, le serveur renvoie
+
+      +--------------------+
+      |REQUEST_IP_OK       |
+      |<ip>                |
+      |<utilisateur>       |
+      |.                   |
+      +--------------------+
+
+   *  En cas d'échec, il retourne
+
+      +--------------------+
+      |REQUEST_IP_KO       |
+      |.                   |
+      +--------------------+
+
+Viau, et al.              Expires 3 April 2021                  [Page 9]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
+
+2.3.10. Message inconnu
+
+   * Si le serveur ne connait pas le message, il peut envoyer
+     le message suivant :
+
+      +--------------------+
+      |UNKNOWN_REQUEST     |
+      |.                   |
+      +--------------------+
+
+3.  Protocole pair à pair
+
+3.1.  Fonctionnement
+
+   Pour la connexion entre les pairs, les clients utilisent le protocole UDP
+   et écoutent sur le port 7201. Tous les datagrammes auront une taille
+   maximale de 1024 octets. Le '.' à la fin sera utilisé pour séparer le
+   contenu de la partie qui assure l'authenticité grâce à HMAC.
+   Le message est renvoyé N fois tant qu'aucun n'acquittement n'a été reçu
+   où le nombre N est laissé au choix de l'implémentation.
+
+3.2.  Message
+
+3.2.1.  Format
+
+   +--------------------------+
+   | MSG                      |
+   | <émetteur>               |
+   | <timestamp>              |
+   | <msg>                    |
+   | .                        |
+   +--------------------------+
+
+   Timestamp représente le temps UNIX en millisecondes.
+
+3.2.2.  Action
+
+   Pour confirmer la réception du message, l'autre pair renvoie l'acquittement
+   suivant. Le timestamp étant unique car en millisecondes, on s'assure que
+   cela acquitte un unique messsage.
+
+   +-----------------------------+
+   | MSG_ACK                     |
+   | <émetteur du message reçu>  |
+   | <timestamp du message reçu> |
+   | .                           |
+   +-----------------------------+
+
+Viau, et al.              Expires 3 April 2021                 [Page 10]
+
+Internet-Draft     GDTP - Good Duck Transfert Protocol    September 2020
