@@ -1,0 +1,50 @@
+@(title: String, content: Html)
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>@title</title>
+    <link rel="stylesheet" href="/public/stylesheets/main.css" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <header>
+    <script>
+      $(document).ready(function () {
+            $.get("/api/current_login", {},
+                  function (data) {
+		      if (data != "") {
+			  $("#nav-ul").append(`<li><a href="/profile?userId=${data}">Profile</a></li>`);
+			  $("#nav-ul").append(`<li><a href="/api/do_logout">Log out</a/<</li>`);
+		      } else {
+                $("#nav-ul").append(
+                    `<li><a href="/signin">Signin</a></li>`,
+                    `<li><a href="/signup">Signup</a></li>`
+                );
+              }
+                }).fail(function () {
+                $("#nav-ul").append(
+                    `<li><a href="/signin">Signin</a></li>`,
+                    `<li><a href="/signup">Signup</a></li>`
+                );
+            });
+        });
+    </script>
+    <nav>
+        <ul id="nav-ul">
+            <li><a href="/products">Products</a></li>
+            <li><a href="/basket">Basket</a></li>
+        </ul>
+    </nav>
+    </header>
+
+    @content
+</body>
+
+</html>

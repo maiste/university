@@ -1,0 +1,45 @@
+@(items: Seq[poca.BasketItem], can_buy: Boolean)
+
+<div class="basket">
+    @if(items.length == 0) {
+        <h3>Your basket is empty, see what we have to <a href="/products">offer</a></h3>
+    } else {
+        <h3>There are @items.length items in your basket</h3>
+    }
+    <div>
+        <ul>
+            @for(item <- items) { <li>
+                <a href="/product?productId=@item.product.id">
+                    <h3>Name: @item.product.name</h3>
+                </a>
+                <p>Count: @item.count</p>
+                <form method="post" action="/api/update_quantity">
+                    <button type="submit" name="update" value="-,@item.product.id" >-</button>
+                    @if((item.product.quantity - item.count)>0){
+                        <button type="submit" name="update" value="+,@item.product.id" >+</button>
+                    }
+                </form>
+                <p>Description: @item.product.description</p>
+                @defining(item.product.imageLinks.split(';')(0)) { image =>
+                    @if(image != "") {
+                        <a href="/product?productId=@item.product.id">
+                            <img src="@image" class="basketImage" alt⁼"@item.product.name" />
+                        </a>
+                    }
+                }
+                <form method="post" action="/api/remove_basket">
+                    <input name="id" type="hidden" value="@(item.product.id)"></input>
+                    <button type="submit">
+                        Remove from basket
+                    </button>
+                </form>
+                </li>
+            }
+        </ul>
+        @if(can_buy){
+            <form method="post" action="/api/buy_basket">
+                <button type="submit" name="buy">Buy</button>
+            </form>
+        }
+    </div>
+</div>

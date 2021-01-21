@@ -1,0 +1,34 @@
+@(profile : poca.User, connected: Option[poca.User])
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+
+<div class="profile">
+    <h1>@(profile.username)</h1>
+
+    <h2>Connected as <em>@(profile.username)</em></h2>
+    <button onclick="window.location.href='/seller';">My Seller Space</button>
+    <button onclick="window.location.href='/orders';">My orders</button>
+
+    <p>You can change your password by filling this form.</p>
+
+    <form action=/api/modify method="post">
+        <label for="username">username:</label><br>
+        <input type="text" name="username"></input><br>
+        <label for="email">email:</label><br>
+        <input type="email" name="email"></input><br>
+        <label for="password"></label>previous password<br>
+        <input type="password" name="prev_password"></input><br>
+        <label for="password"></label>new password<br>
+        <input type="password" name="new_password"></input><br>
+        <input type="submit">
+    </form>
+
+    <form method="post" action="/api/account_removal">
+        <input name="id" type="hidden" value="@(profile.userId)"></input>
+        <button type="submit">
+            Delete account
+        </button>
+    </form>
+</div>

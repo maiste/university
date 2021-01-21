@@ -1,0 +1,42 @@
+@(items: Seq[(poca.OrderSeller,poca.Product)])
+
+<div class="order">
+    <h1>Received Orders</h1>
+    <div>
+        <ul>
+            @for(item <- items) { <li>
+                </p>Date : @item._1.date.toString.dropRight(13) </p>
+                <a href="/product?productId=@item._1.productId">
+                    <h3>@item._2.name</h3>
+                </a>
+
+                @defining(item._2.imageLinks.split(';')(0)) { image =>
+                    @if(image != "") {
+                    <a href="/product?productId=@item._2.id">
+                        <img src="@image" class="basketImage" alt⁼"@item._2.name" />
+                    </a>
+                    }
+                }
+                <p>Quantity : @item._1.quantity</p>
+                <p>Buyer : @item._1.user.username</p>
+                <p>Status : @item._1.status</p>
+
+		<form action=/api/update_order_status method="post">
+                  <label for="status-select">Choose a status:</label>
+
+		  <select name="status" id="status-select">
+		    <option value="">--Please choose an option--</option>
+		    <option value="requested">Requested</option>
+		    <option value="ongoing">On going</option>
+		    <option value="delivered">Delivered</option>
+		    <option value="cancelled">Cancelled</option>
+		  </select>
+
+		  <input type="hidden" name="id" value="@(item._1.orderId)"></input>
+                  <input type="submit" value="Update status">
+                </form>
+        </li>
+            }
+        </ul>
+    </div>
+</div>

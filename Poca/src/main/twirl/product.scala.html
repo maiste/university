@@ -1,0 +1,33 @@
+@(product : poca.Product, user : String)
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+
+<div class="product">
+  <h1>@(product.name)</h1>
+  <div class="product-description">
+    <p>@product.description
+      <br/>
+      <br/>
+      Selled by : @user
+      <br/>
+      <br/>
+      Price : @product.price $
+    </p>
+    <div id="images">
+      @for(image <- product.imageLinks.split(';')) { 
+      <img src="@image" alt⁼"@product.name" />
+      }
+    </div>
+  </div>
+
+  @if((product.quantity)>0){
+    <form action=/api/add_basket method="post">
+      <input name="id" type="hidden" value="@(product.id)"></input>
+      <button type="submit">Add to basket</button>
+    </form>
+  } else {
+    <label class="out_of_stock">Sorry, this product is not available.</label>
+  }
+</div>

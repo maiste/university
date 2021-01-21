@@ -1,0 +1,48 @@
+@(products : Seq[poca.Product])
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+
+<div class="seller">
+  <h1>Seller place</h1>
+    <div>
+        <button onclick="window.location.href='/sellerOrders';">Orders history</button>
+
+        <form action="/supply" method="post">
+
+            <button type="submit">Sell another product</button>
+        </form>
+    </div>
+    <h2>Products I sell</h2>
+   <ul>
+        @for(product <- products) { <li>
+                <a href="/product?productId=@product.id">
+                    <h3>Name: @product.name</h3>
+                </a>
+		<p>Description: @product.description
+                  <br/>
+                  <br/>
+                  Price : @product.price $
+		  <br/>
+		  <br/>
+		  Quantity : @product.quantity
+                </p>
+                @defining(product.imageLinks.split(';')(0)) { image =>
+                    @if(image != "") {
+                        <a href="/product?productId=@product.id">
+                            <img src="@image" alt⁼"@product.name" />
+                        </a>
+                    }
+		}
+		<form action=/api/update_product_quantity method="post">
+                  <label for="quantity">quantity :</label><br>
+		  <input type="hidden" name="id" value="@(product.id)"></input>
+                  <input type="number" name="quantity"></input><br>
+                  <input type="submit" value="Update quantity">
+                </form>
+
+                </li>
+            }
+    </ul>
+</div>

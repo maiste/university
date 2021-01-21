@@ -1,0 +1,21 @@
+@()
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+
+<div class="forms">
+    <h1>Signup</h1>
+
+    <p>Here you can signup to our marvelous web application.</p>
+
+    <form action=/api/register method="post">
+        <label for="email">email :</label><br>
+        <input type="email" class="field" name="email"></input><br>
+        <label for="username">username :</label><br>
+        <input type="text" class="field" name="username"></input><br>
+        <label for="password"></label>password :<br>
+        <input type="password" class="field" name="password"></input><br>
+        <input type="submit">
+    </form>
+</div>

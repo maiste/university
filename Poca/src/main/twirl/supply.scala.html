@@ -1,0 +1,23 @@
+@()
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+
+<div>
+    <h1>Add a product to sell</h1>
+
+    <form action=/api/add_stock method="post">
+        <label for="name">name :</label><br>
+        <input type="text" name="name"></input><br>
+        <label for="description">description :</label><br>
+        <input type="text" name="description"></input><br>
+        <label for="url">image URL :</label><br>
+        <input type="text" name="image"></input><br>
+        <label for="price">price :</label><br>
+        <input type="number" name="price"></input><br>
+        <label for="quantity">quantity :</label><br>
+        <input type="number" name="quantity"></input><br>
+        <input type="submit">
+    </form>
+</div>

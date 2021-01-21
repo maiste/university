@@ -1,0 +1,433 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+/* || GENERAL */
+
+html {
+  height: 100%;
+}
+
+body{
+  margin: 0px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+}
+
+header {
+  height: 45px;
+}
+
+h1, h2, h3, p {
+    color: #000a1a;
+}
+
+/* || NAV */
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #000a1a;
+  display: flex;
+  justify-content: space-around
+}
+
+nav li a {
+  display: block;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  padding: 14px 16px;
+  width: 100%;
+}
+
+nav li a:hover {
+  background-color: white;
+  color: #000a1a;
+  width: 100%;
+}
+
+
+/* || FORMS */
+
+.forms {
+    background: url("https://cdn.pixabay.com/photo/2016/11/23/15/29/animal-1853533_960_720.jpg") no-repeat;
+    background-size: cover;
+}
+
+.forms h1 {
+    color: #000a1a;
+    text-align: right;
+    margin: 5% 22% 10%;
+}
+
+.forms p {
+    text-align: right;
+    margin: 5% 13% 2%;
+}
+
+.forms form {
+    text-align: center;
+    margin: 10% 5% 20% 50%;
+}
+
+.forms input[type=submit], .profile input[type=submit], .profile button {
+    margin: 8px;
+    border: 2px solid #000a1a;
+    width: 35%;
+    border-radius: 25px;
+    background-color: #000a1a;
+    color: #d1d1e0;
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+.forms input, .profile input {
+    padding: 12px 35%;
+    margin: 8px;
+    width: 30%;
+    border: 2px solid #000a1a;
+    border-radius: 25px;
+    background-color: transparent;
+    color: #000a1a;
+    outline: none;
+}
+
+.forms label, .profile label {
+    display: inline;
+}
+
+
+/* || ERRORS */
+
+body.error {
+    background: url("https://coffeeandcapturedmoments.files.wordpress.com/2016/03/chicks-cop.jpg") no-repeat;
+    background-size: cover;
+    background-blend-mode: lighten;
+}
+
+.error h1 {
+    color: #000a1a;
+    text-align: center;
+    margin: 5% 22% 10%;
+    background-color: white;
+}
+
+.error p {
+    text-align: center;
+    margin: 0% 30%;
+    background-color: white;
+}
+
+lab.error el {
+    display: inline;
+}
+
+
+/* || PROFILE */
+
+.profile {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: url(https://images.unsplash.com/photo-1550605406-f061fa493754?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1934&q=80);
+    background-size: cover;
+    padding-right: 10%;
+    padding-left: 50%;
+}
+
+.profile form button {
+    margin: 8px;
+    border: 2px solid #000a1a;
+    width: 35%;
+    height: 40px;
+    border-radius: 25px;
+    background-color: #000a1a;
+    color: #d1d1e0;
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+.profile form {
+    text-align: center;
+}
+
+
+/* || BASKET */
+
+img.basketImage {
+  display: block;
+  max-width:230px;
+  max-height:95px;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+}
+
+.basket {
+  background-color: #dddddd;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.basket ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.basket li {
+  padding: 15px;
+  padding: 10px;
+  border: 2px solid #000a1a;
+  border-radius: 40px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.basket li a {
+  text-decoration: none;
+  color: #000a1a;
+  display: flex;
+  justify-content: center;
+}
+
+.basket li a:hover {
+  text-decoration: underline;
+}
+
+
+/* || MARKET */
+
+.market {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: url("https://images.unsplash.com/photo-1553361580-9088b02203d7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1489&q=80");
+  background-repeat: repeat;
+}
+
+.market h1 {
+  background-color: #000a1a;
+  color: white;
+  width: 230px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.market h3, .market p {
+	color: white;
+}
+
+
+.market ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.market li {
+  padding: 15px;
+  padding: 10px;
+  border: 2px solid #000a1a;
+  border-radius: 40px;
+  text-align: center;
+  margin-bottom: 20px;
+  background-color: #000a1a;
+  color: white;
+}
+
+
+.market li a {
+  text-decoration: none;
+  color: white;
+  display: flex;
+  justify-content: center;
+}
+
+.market li a:hover {
+  text-decoration: underline;
+}
+
+.market img {
+  max-width: 600%;
+  height: auto;
+  border-radius: 40px;
+}
+
+
+/* || PRODUCT */
+
+.product {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: url("https://images.unsplash.com/photo-1600294421265-c354b772e790?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80");
+  background-size: cover;
+
+}
+
+.product h1 {
+  background: #000a1a;
+  color: white;
+  border-radius: 10px;
+  width: 40%;
+  text-align: center;
+}
+
+
+.product img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 40px
+}
+
+.product form button {
+    margin: 8px;
+    border: 2px solid #000a1a;
+    width: 35%;
+    height: 40px;
+    border-radius: 25px;
+    background-color: #000a1a;
+    color: #d1d1e0;
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+.product form {
+    text-align: center;
+    width: 80%;
+}
+
+.product-description {
+  height: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.product p {
+  background: #000a1a;
+  color: white;
+  border-radius: 10px;
+  width: 80%;
+  text-align: center;
+  padding: 10px;
+  margin-right: 10px;
+  margin-top: 0px;
+  min-height: 50%;
+}
+
+.out_of_stock  {
+  background: #000a1a;
+  color: red;
+  font-size: large;
+}
+
+/* || Orders */
+.order {
+  background-color: #dddddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.order h1{
+  background-color: #000a1a;
+  color: white;
+  width: 200px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.order ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.order li {
+  padding: 15px;
+  padding: 10px;
+  border: 2px solid #000a1a;
+  border-radius: 20px;
+  text-align: center;
+  margin-bottom: 5px;
+  background-color: #000a1a;
+  color: white;
+  align-items: center;
+}
+
+.order p{
+  color : white;
+  align-items: center;
+}
+
+.order li a{
+  display: flex;
+  justify-content: center;
+  color: white;
+}
+
+.order h3{
+  color :white
+}
+
+.order form{
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+/* || Seller */
+
+.seller {
+  background-color: #dddddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.seller form button {
+  margin-top: 3px;
+  border: 2px solid #000a1a;
+  height: 40px;
+  border-radius: 25px;
+  width: 110%;
+  background-color: #000a1a;
+  color: #d1d1e0;
+}
+
+.seller button {
+  border: 2px solid #000a1a;
+  height: 40px;
+  width: 100%;
+  border-radius: 25px;
+  background-color: #000a1a;
+  color: #d1d1e0;
+}
+
+.seller ul{
+  list-style-type: none;
+}
+
+.seller form{
+  background-color: #dddddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+}
