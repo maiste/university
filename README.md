@@ -37,3 +37,7 @@ My school projects at University Paris 7 (now Université de Paris).
   * ![Poca](https://github.com/maiste/School_projects/tree/master/Poca) - **Scala**
   * ![GDTPS](https://github.com/maiste/School_projects/tree/master/GDTPS) - **Java**
 
+#### S4
+  * ![Euterpe](https://github.com/maiste/School_projects/tree/master/Euterpe) - **Python**
+
+

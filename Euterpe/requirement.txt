@@ -1,0 +1,4 @@
+unidecode
+spacy
+nltk
+flask

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Space+Mono|Muli">
+    <title>Euterpe</title>
+  </head>
+  <body>
+    <div id="container">
+      <h1>Euterpe.live</h1>
+      <h2>Moteur de recherche de page wikipédia lié à la musique !</h2>
+      <form
+        action="http://localhost:5000/"
+        method="post"
+        accept-charset="utf-8"
+      >
+        <input class="search" type="text" name="search" />
+        <input class="button" type="submit" value="Chercher" />
+      </form>
+      {% if ask %}
+      <div id="answers">
+        {% for name, link in answer %}
+        <div class="answer">
+          <h3> {{ name }} </h3>
+          <p><a href="{{ link }}">{{ link }}</a></p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+  </div>
+  </body>
+</html>
