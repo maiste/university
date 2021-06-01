@@ -1,0 +1,939 @@
+open Whilennh
+open Auxiliary
+
+(*
+  PROJECT part 1.1:
+
+  Use (and adapt) the declaration of the generic framework,
+  that is the interface of the modules MF and BVF,
+  to define the INTRAprocedural part of the
+
+  - RD: reaching definition analysis [OK]
+  - AE: available expression analysis [OK]
+  - CP: constant propagation analysis [OK]
+  - SA: sign analysis (Exercice 2.14 [NNH]) [OK]
+  - VB: very busy expressions [OK]
+  - LV: live variables [OK]
+*)
+
+
+
+(*
+  Interface for Monotone Framework.
+*)
+module type MF = sig
+  type t
+  val lub: t -> t -> t
+  val leq : t -> t -> bool
+  val bot : stm -> t
+  val iota : stm -> t
+  val ext : stm -> label list
+  val flow : stm -> (label * label) list
+  val f : stm -> label -> t -> t
+
+  (* Utilities functions *)
+  val string_of_knowledge : t -> string
+  val print_knowledge : t -> unit
+end
+
+
+(*
+   Interface for a Bit Vector Framework.
+   ie. we use set
+*)
+module type BVF = sig
+  include MF
+  val union : t -> t -> t
+  val diff : t -> t -> t
+  val gen : label -> stm -> t
+  val kill : label -> stm -> t
+end
+
+
+(* Transform a set to a list *)
+let flow_to_list flow = Flow.elements flow
+
+(*
+  Auxiliary function that takes in input a
+  a label, a statement, and returns the block
+  with that label if it exists, or None.
+ *)
+let rec find lab stm  =
+  match stm with
+  | Skip l ->
+     if lab = l
+     then Some (BSkip lab)
+     else None
+  | Ass (c, a, l) ->
+     if lab = l
+     then Some (BAss (c,a,lab))
+     else None
+  | If (b, l,  stm1, stm2) ->
+     if lab = l
+     then Some (BBool (b,lab))
+     else (match find lab stm1 with
+          | Some block -> Some block
+          | None -> find lab stm2)
+  | While (b, l, stm) ->
+     if lab = l
+     then Some (BBool (b,lab))
+     else find lab stm
+  | Seq (stm1, stm2) ->
+     (match find lab stm1 with
+     | Some block -> Some block
+     | None -> find lab stm2)
+  | Call (pname, vals, rvar, lcall, lret) ->
+     if lab = lcall
+     then Some (BCall (pname, vals, rvar, lcall, lret))
+     else if lab = lret 
+     then Some (BCall (pname, vals, rvar, lcall, lret))
+     else None
+  (* We do not support Bind *)
+  | Bind (_,_, _, _) -> assert false
+
+(*
+  Get free variables in the sentence. As we don't consider the bind
+  in our analysis, it corresponds to every variable.
+*)
+module FV = Set.Make(Char)
+
+(* Free vars in aexpr *)
+let rec free_vars_aexpr aexpr =
+  match aexpr with
+  | Var c -> FV.singleton c
+  | Cnt _ -> FV.empty
+  | Plus (ae1, ae2)
+  | Minus (ae1, ae2)
+  | Mult (ae1, ae2) ->
+    FV.union (free_vars_aexpr ae1) (free_vars_aexpr ae2)
+
+(* Free vars in bexpr *)
+let rec free_vars_bexpr bexpr =
+  match bexpr with
+  | TT | FF -> FV.empty
+  | Not bexpr -> free_vars_bexpr bexpr
+  | And (b1, b2) ->
+    let b1 = free_vars_bexpr b1 in
+    let b2 = free_vars_bexpr b2 in
+    FV.union b1 b2
+  | Eq (a1, a2) | Gt (a1, a2) ->
+    let a1 = free_vars_aexpr a1 in
+    let a2 = free_vars_aexpr a2 in
+    FV.union a1 a2
+
+(* Free vars in statement *)
+let rec free_vars = function
+  | Skip _ -> FV.empty
+  | Ass (c, a, _) -> FV.union (FV.singleton c) (free_vars_aexpr a)
+  | If (b,_,stm1, stm2) ->
+    let b = free_vars_bexpr b in
+    let v1 = free_vars stm1 in
+    let v2 = free_vars stm2 in
+    FV.union b (FV.union v1 v2)
+  | While (b, _, stm) ->
+    let b = free_vars_bexpr b in
+    let v = free_vars stm in
+    let uni = FV.union b v in
+    uni
+  | Seq (stm1, stm2) ->
+    let v1 = free_vars stm1 in
+    let v2 = free_vars stm2 in
+    FV.union v1 v2
+  | Call (_, _, _, _ , _) -> FV.empty
+  (* We do not support Bind *)
+  | Bind (_,_, _, _) -> assert false
+
+
+
+(********** Reaching Definition analysis ****************)
+
+module L = Set.Make(
+  struct
+    type t = char * label option
+    let compare = compare
+  end)
+
+(*
+  Get the variable with the same name in the statement.
+*)
+let same_vars_in_blocks v stm =
+  let blocks = blocks_stm stm in
+  BlockSet.fold (fun block acc ->
+    match block with
+    | BAss (v', _, l) ->
+        if v = v' then L.union acc (L.singleton (v', Some l))
+        else acc
+    | _ -> acc
+  ) blocks L.empty
+
+module RDAnalysis: BVF = struct
+  type t = L.t
+
+   (*
+     An element of type t is an element of the lattice L,
+     in this case a list that represents a set of
+     pairs (variable, label).
+     The variable is represented by its symbol (as type char).
+   *)
+
+
+  (* Lub is the union of the sets *)
+  let lub know1 know2 =
+    L.union know1 know2
+
+  (* leq is the set inclusion*)
+  let leq know1 know2 =
+    L.subset know1 know2
+
+  (*
+     As per the maths, the bottom element in the lattice L
+     for the reaching definition analysis is the empty set.
+     Note that in general bot may depend on the statement 
+     to analyze.
+   *)
+  let bot stm = L.empty
+
+  (* Set union. *)
+  let union set1 set2 =
+    L.union set1 set2
+
+  (* Set difference *)
+  let diff set1 set2 =
+    L.diff set1 set2
+
+  (* Knowledge generated by the block at label "lab". *)
+  let gen lab stm =
+    match find lab stm with
+    | None -> failwith "Looking for a label not in the statement !"
+    | Some block ->
+       (match block with
+        | BAss (char, _, _) -> L.singleton (char, Some lab)
+        | BSkip _
+        | BBool (_, _)
+        | BCall (_, _, _, _, _)
+        | BIs _
+        | BEnd _ -> L.empty
+       ) (* See slide 26 week4 *)
+
+  (* Knowledge to be removed at the exit from block at label "lab". *)
+  let kill lab stm =
+    match find lab stm with
+    | None -> failwith "Looking for a label not in the statement !"
+    | Some block ->
+       (match block with
+        | BAss (c, _, _) ->
+            let other_x = same_vars_in_blocks c stm in
+            union (L.singleton (c,None)) (other_x)
+        | BSkip _
+        | BBool (_, _)
+        | BCall (_, _, _, _, _)
+        | BIs _
+        | BEnd _ -> L.empty
+       ) (* See slide 26 week4 *)
+
+  (* { (x, ?) | x ∈ FV s } *)
+  let iota stm =
+    let free = free_vars stm in
+    FV.fold (fun v acc -> L.add (v, None) acc) free L.empty
+
+  (* Ext is the init of the statement *)
+  let ext stm = [init_stm stm]
+
+  (* Flow is the flow of the statement *)
+  let flow stm = flow_stm stm |> flow_to_list
+
+  (* f (l)(x) = (x \ kill ([B]^l)) ∪ gen ([B]^l) where [B]^l ∈ blocks(S) *)
+  let f stm lab =
+    fun k -> union (gen lab stm) (diff k (kill lab stm))
+
+  let string_of_knowledge t =
+    L.fold (fun (x, y) acc ->
+        let y = match y with
+          | Some l -> string_of_int l
+          | None -> "?"
+        in
+        "(" ^ (String.make 1 x) ^ "," ^ y ^ ") " ^ acc
+      ) t ""
+
+   let print_knowledge t =
+    print_string (string_of_knowledge t)
+end
+
+
+
+(********* Available Expression analysis ********)
+
+module AExprs = Set.Make
+    (struct
+      type t = aexpr
+      let compare = compare
+    end)
+
+(* Compute AExp (a) = set of non-trivial arithmetic expressions in a *)
+let rec aexpr_a aexpr : AExprs.t =
+  match aexpr with
+  (* Vars and constant are trivial *)
+  | Var _ | Cnt _
+  (* Operations ( +, -, * ) are trivial on constants *)
+  | Plus (Cnt _, Cnt _)
+  | Minus (Cnt _, Cnt _)
+  | Mult (Cnt _, Cnt _) -> AExprs.empty
+  (* Every operations containing variables are not trivial *)
+  | Plus (x, y) | Minus (x, y) | Mult (x, y)->
+    let left = aexpr_a x in
+      let right = aexpr_a y in
+      AExprs.add aexpr (AExprs.union left right)
+
+(* Compute AExpr (b) = set of non-trivial arithmetic expressions in b *)
+let rec aexpr_b bexpr : AExprs.t =
+  match bexpr with
+  (* True, false are trivial *)
+  | TT | FF -> AExprs.empty
+  (* For not and `and` we look into sub terms *)
+  | Not b -> aexpr_b b
+  | And (b1, b2) -> AExprs.union (aexpr_b b1) (aexpr_b b2)
+  (* Availables expressions are to be found in aexpressions in eq and gt *)
+  | Eq (a1, a2) | Gt (a1, a2) -> AExprs.union (aexpr_a a1) (aexpr_a a2)
+
+(* Compute Aexpr* = set of non-trivial arithmetic expressions in S
+   ie. we look in every sub terms of a statement *)
+let rec aexprs_stm (stm: stm) : AExprs.t =
+  match stm with
+  | Skip _ -> AExprs.empty
+  | Ass (_, aexpr, _) -> aexpr_a aexpr
+  | If (b, _, stm1, stm2) ->
+    AExprs.union (aexpr_b b) (AExprs.union (aexprs_stm stm1) (aexprs_stm stm2))
+  | Seq (stm1, stm2) -> AExprs.union (aexprs_stm stm1) (aexprs_stm stm2)
+  | While (b, _, stm) -> AExprs.union (aexpr_b b) (aexprs_stm stm)
+  | Bind (_, stm, _, _) -> aexprs_stm stm
+  | Call (_, aexprs, _, _, _) ->
+    List.fold_left (fun acc x ->
+        AExprs.union acc (aexpr_a x)
+      ) AExprs.empty aexprs
+
+
+module AEAnalysis : BVF = struct
+  (* Knowledges is a set of available expressions *)
+  type t = AExprs.t
+
+  (* Lub is the intersection of the sets *)
+  let lub know1 know2 =
+    AExprs.inter know1 know2
+
+  (* Leq is the set inclusion *)
+  let leq know1 know2 =
+    AExprs.subset know2 know1
+
+  (* Bot is the set of every available expressions in the statement *)
+  let bot stm =
+    aexprs_stm stm
+
+  (* As the type t is a set, we use Set.union *)
+  let union set1 set2 =
+    AExprs.union set1 set2
+
+  (* As the type t is a set, we use Set.diff *)
+  let diff set1 set2 =
+    AExprs.diff set1 set2
+
+  (* Knowledge generated by the block at label "lab". *)
+  let rec gen lab (stm: stm) =
+    match find lab stm with
+    | None -> failwith "Looking for a label not in the statement !"
+    | Some block ->
+      (match block with
+       | BAss (c, aexpr, l) ->
+         (* gen([x:=a]^l]) = {a' ∈ AExp(a) | x ∈/ FV a' } *)
+         let aexpa = aexpr_a aexpr in
+         AExprs.filter (fun ae ->
+             let fvs = free_vars_aexpr ae in
+             not (FV.mem c fvs)) aexpa
+       | BBool (b, _) ->
+         (* gen([b]^l]) = AExpr b *)
+         aexpr_b b
+       | _ -> AExprs.empty)
+
+  (* Knowledge to be removed at the exit from block at label "lab". *)
+  let kill lab stm =
+    let all_aexprs = aexprs_stm stm in
+    match find lab stm with
+    | None -> failwith "Looking for a label not in the statement !"
+    | Some block ->
+      (match block with
+       | BAss (c, aexpr, l) ->
+         (* kill([x:=a]^l) = {a' ∈ AExp* | x ∈ FV a'} *)
+         AExprs.filter (fun ae ->
+             let fvs = free_vars_aexpr ae in
+             FV.mem c fvs) all_aexprs
+       | BBool (b, _) -> AExprs.empty
+       | _ -> AExprs.empty)
+
+  (* Iota is the empty set *)
+  let iota stm =
+    AExprs.empty
+
+  (* Ext is the init of the statement *)
+  let ext stm =
+    [init_stm stm]
+
+  (* Flow is the flow of the statement *)
+  let flow stm =
+    flow_stm stm |> flow_to_list
+
+  let string_of_knowledge t =
+    AExprs.fold (fun ae acc ->
+        (string_of_aexpr ae) ^ " ; " ^ acc
+      ) t ""
+
+  (* f (l)(x) = (x \ kill ([B]^l)) ∪ gen ([B]^l) where [B]^l ∈ blocks(S) *)
+  let f stm lab =
+    fun k -> union (gen lab stm) (diff k (kill lab stm))
+
+  let print_knowledge t = print_string (string_of_knowledge t)
+end
+
+
+
+(********* Constant Propagation analysis ********)
+
+(* Type ℤ^T = ℤ U {T} *)
+type zt = Top | Z of int
+
+(* Utility type for computation *)
+type zaexpr = ATop | ABot | AZ of int
+
+(*
+  Leq for ℤ^T:
+  - ∀ z ∊ ℤ^T, z ≼ T
+  - ∀ z1, z2 ∊ ℤ^T, z1 ≼ z2 iff z1 = z2
+*)
+let zt_leq zt1 zt2 =
+  match zt1, zt2 with
+  | _, Top -> true
+  | Z z1, Z z2 -> z1 = z2
+  | _, _ -> false
+
+(*
+  Lub for ℤ^T:
+  - ∀ z1, z2 ∊ ℤ, z1 ∐ z2 = z1 iff z1 = z2
+  - ∀ z1, z2 ∊ ℤ, z2 ∐ z2 = T else
+*)
+let zt_lub zt1 zt2 =
+  match zt1, zt2 with
+  | Z z1, Z z2 ->
+      if z1 = z2 then zt1
+      else Top
+  | _ -> Top
+
+let string_of_zt = function
+  | Top -> "Top"
+  | Z i -> "Z " ^ string_of_int i
+
+(*
+  Map char -> ℤ^T which representes, for a fix statement S,
+  the functions F: FV(S) -> ℤ^T.
+*)
+module StateMap = Map.Make(struct
+    type t = char
+    let compare = compare
+end)
+
+(*
+  Type state = (FV(S) -> ℤ^T) U {⊥}
+*)
+type state = Bot | Fun of zt StateMap.t
+
+module CPAnalysis : MF = struct
+  (* Knowledge is a state *)
+  type t = state
+
+ (*
+    Leq on state is defined as follow:
+    - ∀ s ∊ state, ⊥ ⊑ s
+    - ∀ s1, s2 ∊ state,  ∀c ∊ FV(S). s1(c) ≼ s2(c)
+  *)
+  let leq know1 know2 =
+    match know1, know2 with
+    | Bot, _ -> true
+    | Fun s1, Fun s2 ->
+        StateMap.for_all (
+          fun k v ->
+            let v' = StateMap.find k s2 in
+            zt_leq v v'
+        ) s1
+    | _ -> false
+
+  (*
+    Lub on state is defined as follow:
+    - ∀ s ∊ state, ⊥ ∐ s = s ∐ ⊥ = s
+    - ∀ s1, s2 ∊ state,  ∀c ∊ FV(S). (s1 ∐ s2)(x) = s1(c) V s2(c)
+  *)
+  let lub know1 know2 =
+    match know1, know2 with
+    | Fun s1, Fun s2 -> Fun  (
+       StateMap.mapi (
+            fun k v ->
+              let v' = StateMap.find k s2 in
+              zt_lub v v'
+          ) s1
+    )
+    | (Fun _ as s), Bot | Bot, (Fun _ as s) -> s
+    | Bot, Bot -> Bot
+
+  (* Bot is the bottom element *)
+  let bot _ = Bot
+
+  (*
+    The initialization is defined as assigning Zero to each free variables
+    into the statement to stay consistent with the interpreter.
+  *)
+  let iota stm =
+     let free = free_vars stm in
+     let s =
+       FV.fold (
+        fun c acc ->
+          StateMap.add c (Z 0) acc
+      ) free StateMap.empty
+     in Fun s
+
+  (*
+    Utilitiy fonction to compute the zaexpr which is just a wrapper
+    to Z U {T} U {⊥} type for computation on aexpr. Here we transform
+    a zt to a zaexpr.
+  *)
+  let zt_to_zaexpr = function
+    | Top -> ATop
+    | Z z -> AZ z
+
+  (*
+    Utilitiy fonction for zaexpr. Get a zaexpr from a state.
+  *)
+  let get_zaexpr_from s x =
+    match s with
+    | Bot -> ABot
+    | Fun s -> (
+      match StateMap.find x s with
+      | Top -> ATop
+      | Z z -> AZ z
+    )
+
+  (*
+    Utilitiy fonction for zaexpr. Get a constant zaexpr from a state.
+  *)
+  let get_zaexpr_cnt s n =
+    match s with
+    | Bot -> ABot
+    | _ -> AZ n
+
+  (*
+    Utilitiy fonction for zaexpr. Get two zaexpr from a state and then apply
+    the operation [op] on the return expressions.
+  *)
+  let rec zaexpr_from_op s op a1 a2 =
+    let a1 = eval_aexpr a1 s in
+    let a2 = eval_aexpr a2 s in
+    match a1, a2 with
+    | AZ z1, AZ z2 -> AZ (op z1 z2)
+    | ABot, _ | _, ABot -> ABot
+    | _ -> ATop
+
+  (*
+    Return the zaexpr = Z U {T} U {⊥} associated with the aexpression.
+    ACp : AExpr -> (state -> Z U {T} U {⊥}) with:
+    - If s = ⊥ then always return ⊥
+    - Else:
+      - If aexpr = Var x, s(x)
+      - If aexpr = Const n, n
+      - If aexpr = (a1 opA a2), ACp(a1)(s) <opA> ACp(a2)(s)
+  *)
+  and eval_aexpr aexpr s =
+    match aexpr with
+    | Var x -> get_zaexpr_from s x
+    | Cnt n -> get_zaexpr_cnt s n
+    | Plus (a1, a2) -> zaexpr_from_op s (+) a1 a2
+    | Minus(a1, a2) ->  zaexpr_from_op s (-) a1 a2
+    | Mult(a1, a2) -> zaexpr_from_op s (fun x y -> x*y) a1 a2
+
+  (*
+    Update the state according to the assignation. If the state = ⊥, we can't
+    do anything. Otherwise, assign the new value to the variable c and return
+    the new state.
+  *)
+  let assign_aexpr c a s =
+    match s with
+    | Bot -> Bot
+    | Fun s' -> (
+      (* Here add act like an update *)
+      match eval_aexpr a s with
+      | ABot -> Bot
+      | ATop -> Fun (StateMap.add c Top s')
+      | AZ z -> Fun (StateMap.add c (Z z) s')
+    )
+
+  (*
+    The transfer function, find the block associated with the statement
+    and the label. Then update the state in case of an assignation,
+    else, simply return the previous state (no modificiation).
+  *)
+  let update_function lab stm s =
+     match find lab stm with
+        | None -> failwith "Looking for a label not in the statement !"
+        | Some block ->
+           (match block with
+            | BAss (c, a, _) -> assign_aexpr c a s
+            | _ -> s
+           )
+
+  (* Ext is the init of the statement *)
+  let ext stm = [init_stm stm]
+
+  (* Flow is the flow of the statement *)
+  let flow stm = flow_stm stm |> flow_to_list
+
+  (*
+    Printing of the knowledge.
+  *)
+  let string_of_knowledge t = match t with
+    | Bot -> "Bot"
+    | Fun zts ->
+      StateMap.fold (fun key zt acc ->
+          "(" ^ (String.make 1 key) ^ " -> " ^ (string_of_zt zt) ^ ") , " ^ acc
+        ) zts ""
+
+  (*
+    Printing of the knowledge.
+  *)
+  let print_knowledge t = print_string (string_of_knowledge t)
+
+  (*
+    fCp : block(S) -> (state -> state) with block(S) retrieves thanks to
+    (statement -> label).
+  *)
+  let f stm lab =
+    fun k ->
+      update_function lab stm k
+end
+
+
+
+(********* Sign analysis ********)
+
+(* Type Sign *)
+type sign = Bot | Minus | Zero | Plus | Top
+(* Map: c -> sign *)
+module SignMap = Map.Make (struct
+  type t = char
+  let compare  = compare
+end)
+
+(* Sign leq *)
+let sign_leq s1 s2 =
+  match s1, s2 with
+  | Bot, _ ->  true
+  | _, Top -> true
+  | s1, s2 -> s1 = s2
+
+(* Sign lub *)
+let sign_lub s1 s2 =
+  match s1, s2 with
+  | Bot, _ -> s2
+  | _ , Bot -> s1
+  | _, _ ->
+      if s1 = s2 then s1
+      else Top
+
+(* Utility function *)
+let string_of_sign = function
+  | Bot -> "Bot"
+  | Minus -> "Minus"
+  | Zero -> "Zero"
+  | Plus -> "Plus"
+  | Top -> "Top"
+
+module SignAnalysis : MF = struct
+  (* Knowledges are variables assigned to a sign as a set *)
+  type t = sign SignMap.t
+
+  (* Apply lub to variables in both sets
+     ie: know1 : (x, Bot) (y, Bot)
+         know2 : (x, Plus) (y, Bot)
+         ->
+         (x, Bot) (y, Bot)
+  *)
+  let lub know1 know2 =
+    SignMap.mapi (
+      fun k v ->
+        let v' = SignMap.find k know2 in
+        sign_lub v v'
+    ) know1
+
+  (* Apply lub to variables same way as lub
+     ie: know1 : (x, Bot) (y, Bot)
+         know2 : (x, Plus) (y, Bot)
+         ->
+         (x, true) (y, true)
+         ->
+         true
+  *)
+  let leq know1 know2 =
+    SignMap.for_all (
+      fun k v ->
+        let v' = SignMap.find k know2 in
+        sign_leq v v'
+    ) know1
+
+  (*
+     for all i : i -> Bot
+  *)
+  let bot stm : sign SignMap.t =
+    let free = free_vars stm in
+    FV.fold (
+      fun c acc ->
+        SignMap.add c Bot acc
+    ) free SignMap.empty
+
+  (*
+    Eval the function into the context env : VAR(S) -> Sign
+  *)
+  let rec eval_aexpr (env : sign SignMap.t) = function
+    | Var c -> SignMap.find c env
+    (* Trivial sign for constant *)
+    | Cnt n when n > 0 -> Plus
+    | Cnt n when n < 0 -> Minus
+    | Cnt _ -> Zero
+    | Plus (a1, a2) -> (
+        (* Compute Plus (sign1, sign2) -> sign3 *)
+         match eval_aexpr env a1, eval_aexpr env a2 with
+         | Bot, _ | _, Bot -> Bot
+         | Zero, Zero -> Zero
+         | Minus, Minus | Minus, Zero | Zero , Minus -> Minus
+         | Plus, Plus | Plus, Zero | Zero, Plus -> Plus
+         |_ -> Top
+    )
+    | Minus (a1, a2) -> (
+        (* Compute Minus (sign1, sign2) -> sign3 *)
+         match eval_aexpr env a1, eval_aexpr env a2 with
+         | Bot, _ | _, Bot -> Bot
+         | Zero, Zero -> Zero
+         | Zero, Minus | Plus, Zero | Plus, Minus -> Plus
+         | Minus, Zero  | Zero, Plus | Minus, Plus -> Minus
+         | _ -> Top
+    )
+    | Mult (a1, a2) -> (
+        (* Compute Mult (sign1, sign2) -> sign3 *)
+         match eval_aexpr env a1, eval_aexpr env a2 with
+         | Bot, _ | _, Bot -> Bot
+         | Zero, _ | _, Zero -> Zero
+         | Minus, Minus | Plus, Plus -> Plus
+         | Minus, Plus | Plus, Minus -> Minus
+         |_ -> Top
+    )
+
+  (* Update sign with the assignement given by its label *)
+  let update_function lab stm env =
+     match find lab stm with
+        | None -> failwith "Looking for a label not in the statement !"
+        | Some block ->
+           (match block with
+            | BAss (c, aexpr, _) ->
+                let sign = eval_aexpr env aexpr in
+                SignMap.add c sign env
+            | _ -> env
+           )
+
+  (* Every free variables is assigned to Zero, we could have chosen Bot but
+     we decided to choose Zero as many default values in languages *)
+  let iota stm = 
+    let free = free_vars stm in
+    FV.fold (
+      fun c acc ->
+        SignMap.add c Zero acc
+    ) free SignMap.empty
+
+  (* Forward flow *)
+  let ext stm  = [ init_stm stm ]
+  let flow stm =  flow_stm stm |> flow_to_list
+
+  (* Update the value thanks to the last value *)
+  let f stm lab =
+    fun env -> update_function lab stm env
+
+  let string_of_knowledge t =
+    SignMap.fold (fun key value acc ->
+        "(" ^ (String.make 1 key) ^ " -> " ^ (string_of_sign value) ^ ") " ^ acc
+      ) t ""
+
+  let print_knowledge t = print_string (string_of_knowledge t)
+end
+
+
+
+(********* Very Busy Expressions ********)
+
+module VB : BVF = struct
+  (* Knowledges is a set of aexpression *)
+  type t = AExprs.t
+
+  (* Lub is the intersect of sets *)
+  let lub know1 know2 =
+    AExprs.inter know1 know2
+
+  (* Lub is the subset of sets *)
+  let leq know1 know2 =
+    AExprs.subset know2 know1
+
+  (* Bot like available expression is the AExpr* in the statement *)
+  let bot stm =
+    aexprs_stm stm
+
+  (* Iota is the empty set *)
+  let iota stm =
+    AExprs.empty
+
+  (* Ext is the list of final statement *)
+  let ext stm =
+    final_stm stm |> Finals.elements
+
+  (* The flow is the backward flow of statement *)
+  let flow stm =
+    flow_stm_inv stm |> Flow.elements
+
+  (* We use the union of sets *)
+  let union set1 set2 =
+    AExprs.union set1 set2
+
+  (* We use the diff of sets *)
+  let diff set1 set2 =
+    AExprs.diff set1 set2
+
+  (* Utilities functions *)
+  let string_of_knowledge t =
+    AExprs.fold (fun ae acc ->
+        (string_of_aexpr ae) ^ " ; " ^ acc
+      ) t ""
+
+  let print_knowledge t = print_string (string_of_knowledge t)
+
+  (* Knowledge generated by the block at label "lab". *)
+  let gen label stm =
+    let res =
+      match find label stm with
+      | None -> failwith "Looking for a label not in the statement !"
+      | Some block ->
+        (match block with
+         (* gen([x:=a]^l) = AExp a *)
+         | BAss (c, aexpr, l) -> aexpr_a aexpr
+         (* gen([b]^l) = AExp b *)
+         | BBool (b, _) -> aexpr_b b
+         | _ -> AExprs.empty)
+    in
+    (* Printf.printf "gen %d => %s\n" label (string_of_knowledge res); *)
+    res
+
+  (* Knowledge to be removed at the exit from block at label "lab". *)
+  let kill lab stm =
+    let res =
+      let all_aexprs = aexprs_stm stm in
+      match find lab stm with
+      | None -> failwith "Looking for a label not in the statement !"
+      | Some block ->
+        (match block with
+         (* kill([x:=a]^l) = {a' ∈ AExp* | x ∈ FV a'} *)
+         | BAss (c, aexpr, l) ->
+           AExprs.filter (fun ae ->
+               let fvs = free_vars_aexpr ae in
+               FV.mem c fvs) all_aexprs
+         | _ -> AExprs.empty)
+    in
+    (* Printf.printf "kill %d => %s\n" lab (string_of_knowledge res); *)
+    res
+
+  (* f (l)(x) = (x \ kill ([B]^l)) ∪ gen ([B]^l) where [B]^l ∈ blocks(S) *)
+  let f stm lab =
+    fun k -> union (gen lab stm) (diff k (kill lab stm))
+end
+
+
+
+(********* Live Variables ********)
+
+module Vars = Set.Make(Char)
+module LV : BVF = struct
+  (* Knowledge is a set of variables which are live *)
+  type t = Vars.t
+
+  (* Lub is the union of the sets *)
+  let lub know1 know2 =
+    Vars.union know1 know2
+
+  (* leq is the set inclusion*)
+  let leq know1 know2 =
+    Vars.subset know1 know2
+
+  (* Bot is empty set *)
+  let bot stm = Vars.empty
+
+  (* Set union. *)
+  let union set1 set2 =
+    Vars.union set1 set2
+
+  (* Set difference *)
+  let diff set1 set2 =
+    Vars.diff set1 set2
+
+  (* Iota is empty set *)
+  let iota stm = Vars.empty
+
+  (* Ext is the final of the statement *)
+  let ext stm = final_stm stm |> Finals.elements
+
+  (* Flow is the backward flow *)
+  let flow stm =
+    flow_stm_inv stm |> Flow.elements
+
+  (* Utilities functions *)
+  let string_of_knowledge t =
+    "{" ^
+    Vars.fold (fun x acc -> acc ^ " " ^ String.make 1 x) t "" ^
+    "}"
+
+  let print_knowledge t =
+    print_string (string_of_knowledge t)
+
+  (* Knowledge generated by the block at label "lab". *)
+  let gen lab stm =
+    let res =
+      match find lab stm with
+      | None -> failwith "Looking for a label not in the statement !"
+      | Some block ->
+        (match block with
+         (* gen([x:=a]^l) = FV a *)
+         | BAss (_, a, _) -> free_vars_aexpr a
+         (* gen([b]^l) = FV b *)
+         | BBool (b, _) -> free_vars_bexpr b
+         | _ -> Vars.empty
+        )
+    in
+    (* Printf.printf "gen %d => %s\n" lab (string_of_knowledge res); *)
+    res
+
+  (* Knowledge to be removed at the exit from block at label "lab". *)
+  let kill lab stm =
+    let res =
+      match find lab stm with
+      | None -> failwith "Looking for a label not in the statement !"
+      | Some block ->
+        (match block with
+         (* kill([x:=a]^l) = {x} *)
+         | BAss (c, _, _) -> Vars.singleton c
+         | _ -> Vars.empty
+        )
+    in
+    (* Printf.printf "kill %d => %s\n" lab (string_of_knowledge res); *)
+    res
+
+  (* f (l)(x) = (x \ kill ([B]^l)) ∪ gen ([B]^l) where [B]^l ∈ blocks(S) *)
+  let f stm lab =
+    fun k -> union (gen lab stm) (diff k (kill lab stm))
+end
+

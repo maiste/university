@@ -1,0 +1,36 @@
+*=======================================================================*
+*                                                                       *
+*      If you want truly to understand something, try to change it.     *
+*                                                                       *
+*=======================================================================*
+
+
+PROJECT PART 2 
+* code (>= 3 pt)
+* examples + doc (>= 2 pt)
+
+
+Following the example of the interval abstract domain
+(given in file intvdomain.ml), define an abstract
+domain for a __sign analysis__.
+
+Afterwards, instantiate the functor Abstate (defined
+in abstate.ml) using your your sign abstract domain,
+to perform the sign analysis of some example programs.
+
+
+**************************************************
+
+
+FILE ORGANISATION:
+
+All the files for abstract interpretation have to be
+in the subdirectory "absint" of you git repository.
+
+This subdirectory must also contain
+
+* A Makefile to compile your code
+
+* A file called "README.txt" that explains
+  how to run your abstract interpreter, and
+  why you have chosen the examples you picked.
