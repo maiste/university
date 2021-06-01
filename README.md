@@ -42,4 +42,7 @@ My school projects at University Paris 7 (now Université de Paris).
   * ![Jasmin](https://github.com/maiste/School_projects/tree/master/Jasmin) - **Scala**
   * ![Analyser](https://github.com/maiste/School_projects/tree/master/Analyser) - **OCaml**
 
+  * Intership:
+    * [Tezos](https://gitlab.com/nomadic-labs/tezos)
+
 
