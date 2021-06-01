@@ -1,0 +1,5 @@
+def f(x) = if x == 0 then 1 else 1-g(x-1)
+def g(x) = if x == 0 then 0 else 1-f(x-1)
+val r = f(6)
+val _ = print_int(r)
+val _ = print_string("\n")
